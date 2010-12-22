@@ -1,0 +1,89 @@
+
+VVV          VVV
+ VVV        VVV
+  VVV      VVV
+   VVV    VVV    
+    VVV  VVV		  OOOOO			  CCCCC
+     VVVVVV		OO     OO		CC
+      VVVV		OO     OO		CC
+       VV		  OOOOO			  CCCCC
+
+
+Voc ist ein aeusserst schlanker Vokabeltrainer, der sich ueber die Shell von Unix-/Linux-Rechnern nutzen laesst. Das Shellskript enthaelt nur Kommandos, die in allen Linux-/Unix-Grundinstallationen vorhanden sind. Voc laeuft z.B. unter BeOS, OS X, Openmoko Freerunner-Handy, Linksys Router mit OpenWrt, OpenBSD usw. Also ueberall, wo eine Bourne-Shell installiert ist. Voc ist quelloffen und kann nach eigenen Wuenschen angepasst werden. Das Skript ist sehr einfach geschrieben und kann dadurch leicht veraendert werden. Mit Voc koennen Vokabeln angelegt, importiert, geloescht, gesucht, gedruckt und abgefragt (Normal- und Multiple-Choice-Modus) werden. Zusaetzlich koennen Vokabeldateien in verschiedene CSV-Formate exportiert werden. Es koennen Favoriten fuer Vokabeldateien und Sounds angelegt werden. Pro Wort kann ein Synonym hinzugefuegt werden. Voc kann im Benutzermodus ausgefuehrt werden (Benutzer anlegen, loeschen etc.).
+
+
+>> Installation <<
+
+1. Voc herunterladen:
+
+http://voc.homeunix.net
+
+http://voc.schulen-saar.de
+
+http://www.supertuxkart.de/voc.html
+
+2. Voc entpacken und mit ./voc starten
+
+
+>> Voc einrichten <<
+
+1. "Vokabeldatei anlegen" waehlen 
+
+Es startet ein Assistent, der beim Anlegen einer Vokabeldatei hilft
+
+
+2. "Optionen - Benutzerverwaltung - Benutzer anlegen" waehlen 
+
+Es koennen Benutzer angelegt werden. Dies macht Sinn, wenn der Logging-Modus spaeter aktiviert wird und mehrere Benutzer mit Voc arbeiten.
+ 
+
+3. "Optionen - Favoriten - Favorit anlegen" waehlen 
+
+Damit das Aufrufen der erstellten Vokabeldateien einfacher wird, koennen Favoriten angelegt werden
+ 
+
+4. "Optionen - Logging ON" waehlen 
+
+Die Logging-Funktion erstellt nach jeder Abfrage-Sitzung, einen Eintrag in der Log-Datei von Voc mit Benutzernamen und Fehleranzahl.
+
+
+>> Lernen <<
+
+Am besten ist es, wenn man in der folgenden Reihenfolge Vokabeln lernt: 
+
+1. Vokabelvorschau 
+
+Hier werden die Vokabeln inkl. Uebersetzungen in einer Art Slideshow angezeigt.
+ 
+
+2. Multiple Choice 
+
+Danach wird das gemerkte im Multiple-Choice-Modus abgefragt
+
+
+3. Normalmodus: 
+
+Jetzt muessen alle Vokabeln eingegeben werden. Nach einer Auswertung, werden die Vokabeln die falsch eingegeben wurden, nochmal abgefragt. Bei einer falschen Antwort, wird die Abfrage der Vokabel so oft wiederholt, bis die richtige Uebersetzung eingegeben wurde.
+
+
+>> Dateiformate << 
+
+Voc arbeitet grundsaetzlich nur mit CSV-Dateiformaten. Als Standard benutzt Voc folgendes CSV-Dateiformat:
+
+Englisch;Englisch2;Deutsch;Deutsch2
+
+Vokabeldateien werden mit der Dateiendung "vvf" abgespeichert.
+
+
+Es kann zusaetzlich noch in folgende CSV-Dateiformate exportieren:
+
+"Englisch","Englisch2","Deutsch","Deutsch2"
+
+Englisch,Englisch2,Deutsch,Deutsch2
+
+Englisch<Tab>Englisch2<Tab>Deutsch<Tab>Deutsch2
+
+
+Auch der Export in das HTML-Format ist moeglich.
+
+

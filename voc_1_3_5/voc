@@ -1,0 +1,6534 @@
+#!/bin/bash
+#
+#
+# Voc ist ein aeusserst schlanker Vokabeltrainer, der sich ueber die Shell auf Linux- und Unix-Systemen nutzen laesst. Das Shellskript enthaelt nur Kommandos, die in allen Linux-/Unix-
+# Grundinstallationen vorhanden sind.
+#
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+#
+# voc mit Datendatei-Support (Es koennen Vokabeldateien eingelesen werden).
+#
+# Beispiel fuer eine Datendatei (Vokabeldatei):
+#
+# cat en-de1.vvf:
+#
+# Englisch;Englisch2;Deutsch;Deutsch2
+# streetcar;tram;Strassenbahn;Trambahn
+# tube;subway;U-Bahn;
+# car;automobile;Auto;
+# who; ;wer;
+# where; ;wo;
+# notebook;laptop;Notebook;Laptop
+#
+# Aufruf des Skriptes:
+#
+# ./voc en-de1.vvf
+#
+
+normal1 ()
+
+{
+
+				PROZENT1=$((${#VOC[*]}-4))
+				PROZENT2=0
+				PROZENT3=5
+				#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+				ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+				ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+				
+
+				
+        			while [ $ZAHL -lt ${#VOC[*]} ]
+
+        			do
+
+					BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "#"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   **[?]***********************
+   Wie lautet die Uebersetzung
+   von '${VOC[$ZAHL]}'?
+   ****************************
+EOF
+				echo -n "   Eingabe: "; read ANSWER
+
+				while [ -z $ANSWER ]
+
+				do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]***********************
+    Ungueltige Eingabe! Zum
+    Wiederholen der Eingabe
+    die Enter-Taste druecken
+   ****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   **[?]***********************
+   Wie lautet die Uebersetzung
+   von '${VOC[$ZAHL]}'?
+   ****************************
+EOF
+				echo -n "   Eingabe: "; read ANSWER
+
+				done
+
+				ZAHL=$(($ZAHL+2))
+
+					if [ $ANSWER = ${VOC[$ZAHL]} ]
+        				then
+
+					PROZENT2=$(($PROZENT2+4))
+
+					#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+					ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+					ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+					BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "#"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+					RICHTIG=$(($RICHTIG+1))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   **[INFO]*********************
+   ${VOC[$ZAHL]}
+   ${VOC[$ZAHL+1]}
+   Richtig $VOCBENUTZER :)
+   *****************************
+   Zum Fortfahren Enter druecken
+
+EOF
+					ZAHL=$(($ZAHL+2))
+					
+read
+
+					else
+
+						ZAHL=$(($ZAHL+1))
+
+						if [ $ANSWER = ${VOC[$ZAHL]} ]
+
+						then
+
+						PROZENT2=$(($PROZENT2+4))
+
+					#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+					ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+					ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+					BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "#"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+						RICHTIG=$(($RICHTIG+1))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   **[INFO]*********************
+   ${VOC[$ZAHL]} 
+   ${VOC[$ZAHL-1]}
+   Richtig $VOCBENUTZER :)
+   *****************************
+   Zum Fortfahren Enter druecken
+
+EOF
+
+read
+
+						ZAHL=$(($ZAHL+1))
+
+
+						else					
+
+						PROZENT2=$(($PROZENT2+4))
+
+					#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+					ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+					ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+					BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "#"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+					FALSCH=$(($FALSCH+1))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   --[!]------------------------
+   Falsch :( Antwort(en):
+   ${VOC[$ZAHL]}
+   ${VOC[$ZAHL-1]}
+   -----------------------------
+   Zum Fortfahren Enter druecken
+
+EOF
+
+read
+
+				if [ -d voc-files ]; then
+					echo ""
+				else
+					mkdir voc-files
+				fi
+				
+				echo "${VOC[$ZAHL-3]};${VOC[$ZAHL-2]};${VOC[$ZAHL-1]};${VOC[$ZAHL]}" >> voc-files/$VOCBENUTZER.w1
+						ZAHL=$(($ZAHL+1))
+
+
+						fi
+
+					fi
+        			done
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+    Auswertung:
+
+    Richtig: $RICHTIG
+    Falsch:  $FALSCH
+   *****************************
+   Zum Fortfahren Enter druecken
+
+EOF
+
+read
+				
+				if [ $STAT = ON ]
+
+				then
+				if [ -d voc-files ]; then
+					echo ""
+				else
+					mkdir voc-files
+				fi
+				date >> voc-files/$RESULT
+				echo "Vokabeldatei: $1" >> voc-files/$RESULT
+				echo "Sprachen: ${VOC[0]} - ${VOC[2]}" >> voc-files/$RESULT
+				echo "Richtig: $RICHTIG" >> voc-files/$RESULT
+				echo "Falsch: $FALSCH" >> voc-files/$RESULT
+				echo "Benutzer: $VOCBENUTZER" >> voc-files/$RESULT
+
+				else
+
+				echo " "
+
+
+				fi
+
+				if [ $FALSCH -gt "0" ]
+
+				then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]***********************
+   Falsch uebersetzte Vokabeln
+   nochmal abfragen?
+   ----------------------------
+   Taste 1 -> Ja
+   Taste 2 -> Nein
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+
+				echo -n "   Eingabe: " ; read WH1 
+
+					if [ $WH1 = 1 ]
+
+					then
+
+						if [ $STAT = ON ]
+
+						then
+
+							if [ -d voc-files ]; then
+								echo ""
+							else
+								mkdir voc-files
+							fi
+							echo "Wiederholt: Ja" >> voc-files/$RESULT
+							echo "" >> voc-files/$RESULT
+							echo "" >> voc-files/$RESULT
+
+						else
+
+							echo " "
+
+						fi
+
+
+						abfragewiederholung1
+
+					else
+
+						if [ $STAT = ON ]
+
+						then
+
+							if [ -d voc-files ]; then
+								echo ""
+							else
+								mkdir voc-files
+							fi
+							echo "Wiederholt: Nein" >> voc-files/$RESULT
+							echo "" >> voc-files/$RESULT
+							echo "" >> voc-files/$RESULT
+						
+						else
+
+							echo " "
+
+						fi
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   --[!]------------------------
+   Abfragewiederholung
+   abgebrochen :(
+   -----------------------------
+   Zum Fortfahren Enter druecken
+EOF
+read
+
+					rm voc-files/$VOCBENUTZER.w1
+
+					fi
+
+				else
+
+					if [ $STAT = ON ]
+
+					then
+				
+						if [ -d voc-files ]; then
+							echo ""
+						else
+							mkdir voc-files
+						fi
+						echo "Wiederholt: Nicht noetig" >> voc-files/$RESULT
+						echo "" >> voc-files/$RESULT
+						echo "" >> voc-files/$RESULT
+					
+					else
+
+						echo " "
+
+
+					fi
+
+				fi
+				
+
+				unset ZAHL
+				unset RICHTIG
+				unset FALSCH
+
+				base $1
+
+}
+
+normal2 ()
+
+{
+
+				ANZAHL2=${#VOC[*]}
+				ZAHL2=$(($ANZAHL2-1))
+				RICHTIG=0
+				FALSCH=0
+				PROZENT1=$((${#VOC[*]}-4))
+				PROZENT2=0
+				PROZENT3=5
+				#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+				ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+				ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+				while [ $ZAHL2 -gt "3" ]
+
+        			do
+
+				BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "#"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+				ZAHL2=$(($ZAHL2-1))
+				
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   **[?]***********************
+   Wie lautet die Uebersetzung
+   von '${VOC[$ZAHL2]}'?
+   ****************************
+EOF
+				echo -n "   Eingabe: "; read ANSWER
+
+				while [ -z $ANSWER ]
+
+				do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]***********************
+    Ungueltige Eingabe! Zum
+    Wiederholen der Eingabe
+    die Enter-Taste druecken
+   ****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   **[?]***********************
+   Wie lautet die Uebersetzung
+   von '${VOC[$ZAHL2]}'?
+   ****************************
+EOF
+				echo -n "   Eingabe: "; read ANSWER
+
+				done
+
+				ZAHL2=$(($ZAHL2-2))
+
+					if [ $ANSWER = ${VOC[$ZAHL2]} ]
+					then
+
+					PROZENT2=$(($PROZENT2+4))
+
+					#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+					ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+					ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+					BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "#"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+					RICHTIG=$(($RICHTIG+1))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   **[INFO]*********************
+   ${VOC[$ZAHL2]} 
+   ${VOC[$ZAHL2+1]}
+   Richtig $VOCBENUTZER :)
+   *****************************
+   Zum Fortfahren Enter druecken
+
+EOF
+
+read
+
+					ZAHL2=$(($ZAHL2-1))
+
+
+					else
+
+						ZAHL2=$(($ZAHL2+1))
+
+						if [ $ANSWER = ${VOC[$ZAHL2]} ]
+
+						then
+
+						PROZENT2=$(($PROZENT2+4))
+
+					#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+					ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+					ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+					BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "#"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+						RICHTIG=$(($RICHTIG+1))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   **[INFO]*********************
+   ${VOC[$ZAHL2]} 
+   ${VOC[$ZAHL2-1]}
+   Richtig $VOCBENUTZER :)
+   *****************************
+   Zum Fortfahren Enter druecken
+
+EOF
+
+read
+
+						ZAHL2=$(($ZAHL2-2))
+
+
+						else
+
+						PROZENT2=$(($PROZENT2+4))
+
+					#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+					ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+					ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+					BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "#"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+					FALSCH=$(($FALSCH+1))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   --[!]------------------------
+   Falsch :( Antwort(en):
+   ${VOC[$ZAHL2]}
+   ${VOC[$ZAHL2-1]}
+   -----------------------------
+   Zum Fortfahren Enter druecken
+
+EOF
+
+read
+		
+		if [ -d voc-files ]; then
+			echo ""
+		else
+			mkdir voc-files
+		fi	
+		echo "${VOC[$ZAHL2-1]};${VOC[$ZAHL2]};${VOC[$ZAHL2+1]};${VOC[$ZAHL2+2]}" >> voc-files/$VOCBENUTZER.w2
+						ZAHL2=$(($ZAHL2-2))
+
+
+						fi
+					fi
+        			done
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+    Auswertung:
+
+    Richtig: $RICHTIG
+    Falsch:  $FALSCH
+   *****************************
+   Zum Fortfahren Enter druecken
+
+EOF
+
+read
+
+				if [ $STAT = ON ]
+
+				then
+
+				if [ -d voc-files ]; then
+					echo ""
+				else
+					mkdir voc-files
+				fi
+				date >> voc-files/$RESULT
+				echo "Vokabeldatei: $1" >> voc-files/$RESULT
+				echo "Sprachen: ${VOC[2]} - ${VOC[0]}" >> voc-files/$RESULT
+				echo "Richtig: $RICHTIG" >> voc-files/$RESULT
+				echo "Falsch: $FALSCH" >> voc-files/$RESULT
+				echo "Benutzer: $VOCBENUTZER" >> voc-files/$RESULT
+				
+				else
+
+				echo " "
+
+				fi
+
+				if [ $FALSCH -gt "0" ]
+
+				then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]***********************
+   Falsch uebersetzte Vokabeln
+   nochmal abfragen?
+   ----------------------------
+   Taste 1 -> Ja
+   Taste 2 -> Nein
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+
+				echo -n "   Eingabe: " ; read WH2 
+
+					if [ $WH2 = 1 ]
+
+					then
+
+						if [ $STAT = ON ]
+
+						then
+						
+							if [ -d voc-files ]; then
+								echo ""
+							else
+								mkdir voc-files
+							fi
+							echo "Wiederholt: Ja" >> voc-files/$RESULT
+							echo "" >> voc-files/$RESULT
+							echo "" >> voc-files/$RESULT
+
+						else
+
+							echo " "
+
+						fi
+
+
+						abfragewiederholung2
+
+					else
+
+						if [ $STAT = ON ]
+
+						then						
+							if [ -d voc-files ]; then
+								echo ""
+							else
+								mkdir voc-files
+							fi
+							echo "Wiederholt: Nein" >> voc-files/$RESULT
+							echo "" >> voc-files/$RESULT
+							echo "" >> voc-files/$RESULT
+
+						else
+
+							echo " "
+
+						fi
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   --[!]------------------------
+   Abfragewiederholung
+   abgebrochen :(
+   -----------------------------
+   Zum Fortfahren Enter druecken
+EOF
+read
+
+					rm voc-files/$VOCBENUTZER.w2
+
+					fi
+
+				else
+
+					if [ $STAT = ON ]
+
+					then
+				
+						if [ -d voc-files ]; then
+							echo ""
+						else
+							mkdir voc-files
+						fi
+						echo "Wiederholt: Nicht noetig" >> voc-files/$RESULT
+						echo "" >> voc-files/$RESULT
+						echo "" >> voc-files/$RESULT
+
+					else
+
+						echo " "
+
+					fi
+
+				fi
+
+				unset RICHTIG
+				unset FALSCH
+				unset ZAHL2
+
+				base $1
+
+}
+
+vorschau ()
+
+{
+
+ZAHL=4
+
+PROZENT1=$((${#VOC[*]}))
+PROZENT1=$(($PROZENT1-4))
+PROZENT2=0
+PROZENT3=5
+#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+				while [ $ZAHL -lt ${#VOC[*]} ]
+
+        			do
+
+				BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "#"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+				
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   **[?]***********************
+   ${VOC[$ZAHL]}
+   ${VOC[$ZAHL+1]}
+   ----------------------------
+EOF
+				ZAHL=$(($ZAHL+2))
+
+					PROZENT2=$(($PROZENT2+4))
+
+					#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+					ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+					ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+sleep 4
+
+cat << EOF
+
+   Uebersetzung:
+
+   ${VOC[$ZAHL]}
+   ${VOC[$ZAHL+1]}
+   ****************************
+
+EOF
+
+					ZAHL=$(($ZAHL+2))
+
+sleep 6
+
+        			done
+
+					#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+					ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+					ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   **[INFO]********************
+
+   Geschafft!
+
+   ****************************
+EOF
+
+sleep 3
+
+				unset ZAHL
+
+				base $1
+
+}
+
+vorschau2 ()
+
+{
+
+ZAHL=$((${#VOC[*]}))
+ZAHL=$(($ZAHL-1))
+
+PROZENT1=$((${#VOC[*]}))
+PROZENT1=$(($PROZENT1-4))
+PROZENT2=0
+PROZENT3=5
+#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf("%5.0f\n", $1/$2*100)}'`
+ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+				until [ $ZAHL -lt 4 ]
+
+				do
+
+				BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "#"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   **[?]***********************
+   ${VOC[$ZAHL]}
+   ${VOC[$ZAHL-1]}
+   ----------------------------
+EOF
+				ZAHL=$(($ZAHL-2))
+
+					PROZENT2=$(($PROZENT2+4))
+
+					#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+					ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+					ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+sleep 4
+
+cat << EOF
+
+   Uebersetzung:
+
+   ${VOC[$ZAHL]}
+   ${VOC[$ZAHL-1]}
+   ****************************
+
+EOF
+
+					ZAHL=$(($ZAHL-2))
+
+sleep 6
+
+				done
+
+					#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+					ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+					ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   **[INFO]********************
+
+   Geschafft!
+
+   ****************************
+EOF
+
+sleep 3
+
+					unset ZAHL
+
+					base $1
+
+}
+
+multi1 ()
+
+{
+
+
+				PROZENT1=$((${#VOC[*]}-4))
+				PROZENT2=0
+				PROZENT3=5
+				# ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+				ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+				ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+				MULTI=$((${#VOC[*]}-3))
+				ZAHL=4
+					
+        			while [ $ZAHL -lt $MULTI ]
+
+        			do
+
+				BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "#"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   **[?]***********************
+   Wie lautet die Uebersetzung
+   von '${VOC[$ZAHL]}'?
+   ----------------------------
+EOF
+
+					
+					ZAHL99=$((RANDOM % 4 + 1 ))
+
+					if [ $ZAHL99 = 1 ]
+					
+					then
+					
+						if [ -d voc-files ]; then
+							echo ""
+						else
+							mkdir voc-files
+						fi
+
+					echo "${VOC[$ZAHL+10]};${VOC[$ZAHL+6]};${VOC[$ZAHL+2]};${VOC[$ZAHL+14]}" >> voc-files/$VOCBENUTZER.mpc1
+					
+					elif [ $ZAHL99 = 2 ]
+					
+					then
+
+						if [ -d voc-files ]; then
+							echo ""
+						else
+							mkdir voc-files
+						fi
+					
+					echo "${VOC[$ZAHL+6]};${VOC[$ZAHL+2]};${VOC[$ZAHL+10]};${VOC[$ZAHL+14]}" >> voc-files/$VOCBENUTZER.mpc1
+					
+					elif [ $ZAHL99 = 3 ]
+					
+					then
+
+						if [ -d voc-files ]; then
+							echo ""
+						else
+							mkdir voc-files
+						fi
+					
+					echo "${VOC[$ZAHL+14]};${VOC[$ZAHL+6]};${VOC[$ZAHL+10]};${VOC[$ZAHL+2]}" >> voc-files/$VOCBENUTZER.mpc1
+					
+					elif [ $ZAHL99 = 4 ]
+					
+					then
+
+						if [ -d voc-files ]; then
+							echo ""
+						else
+							mkdir voc-files
+						fi
+					
+					echo "${VOC[$ZAHL+2]};${VOC[$ZAHL+6]};${VOC[$ZAHL+10]};${VOC[$ZAHL+14]}" >> voc-files/$VOCBENUTZER.mpc1
+					
+					fi 2> /dev/null
+										
+					
+					for i in 1 2 3 4; do
+					
+					if [ -z ${VOC[$ZAHL+2]} ]
+
+					then
+
+						rm voc-files/$VOCBENUTZER.mpc1
+
+						echo "${VOC[$ZAHL+2]};${VOC[$ZAHL-6]};${VOC[$ZAHL-10]};${VOC[$ZAHL-14]}" >> voc-files/$VOCBENUTZER.mpc1
+						
+					elif [ -z ${VOC[$ZAHL+6]} ]
+
+					then
+
+						rm voc-files/$VOCBENUTZER.mpc1
+
+						echo "${VOC[$ZAHL-6]};${VOC[$ZAHL+2]};${VOC[$ZAHL-10]};${VOC[$ZAHL-14]}" >> voc-files/$VOCBENUTZER.mpc1
+
+					elif [ -z ${VOC[$ZAHL+10]} ]
+
+					then
+
+						rm voc-files/$VOCBENUTZER.mpc1
+
+						echo "${VOC[$ZAHL-10]};${VOC[$ZAHL-6]};${VOC[$ZAHL+2]};${VOC[$ZAHL-14]}" >> voc-files/$VOCBENUTZER.mpc1
+
+					elif [ -z ${VOC[$ZAHL+14]} ]
+
+					then
+
+						rm voc-files/$VOCBENUTZER.mpc1
+
+						echo "${VOC[$ZAHL-14]};${VOC[$ZAHL-6]};${VOC[$ZAHL-10]};${VOC[$ZAHL+2]}" >> voc-files/$VOCBENUTZER.mpc1
+
+					fi 2> /dev/null
+
+					done
+
+					MULTI2=($( cat voc-files/$VOCBENUTZER.mpc1 | tr '\n' ';' ))
+										
+					MULTIZAHL=0
+
+					MULTIZAEHLER=1
+					
+					for i in 1 2 3 4; do
+					
+					echo "   $MULTIZAEHLER -> ${MULTI2[$MULTIZAHL]}"
+
+					MULTIZAEHLER=$(($MULTIZAEHLER+1))
+					
+					MULTIZAHL=$(($MULTIZAHL+1))
+					
+					done
+
+
+
+cat << EOF
+   ****************************
+EOF
+
+				echo -n "   Eingabe: "; read ANSWER
+
+				while [ -z $ANSWER ]
+
+				do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]***********************
+    Ungueltige Eingabe! Zum
+    Wiederholen der Eingabe
+    die Enter-Taste druecken
+   ****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   **[?]***********************
+   Wie lautet die Uebersetzung
+   von '${VOC[$ZAHL]}'?
+   ----------------------------
+EOF
+
+
+					ZAHL99=$((RANDOM % 4 + 1 ))
+
+					if [ $ZAHL99 = 1 ]
+					
+					then
+					
+						if [ -d voc-files ]; then
+							echo ""
+						else
+							mkdir voc-files
+						fi
+
+					echo "${VOC[$ZAHL+10]};${VOC[$ZAHL+6]};${VOC[$ZAHL+2]};${VOC[$ZAHL+14]}" >> voc-files/$VOCBENUTZER.mpc1
+					
+					elif [ $ZAHL99 = 2 ]
+					
+					then
+
+						if [ -d voc-files ]; then
+							echo ""
+						else
+							mkdir voc-files
+						fi
+					
+					echo "${VOC[$ZAHL+6]};${VOC[$ZAHL+2]};${VOC[$ZAHL+10]};${VOC[$ZAHL+14]}" >> voc-files/$VOCBENUTZER.mpc1
+					
+					elif [ $ZAHL99 = 3 ]
+					
+					then
+
+						if [ -d voc-files ]; then
+							echo ""
+						else
+							mkdir voc-files
+						fi
+					
+					echo "${VOC[$ZAHL+14]};${VOC[$ZAHL+6]};${VOC[$ZAHL+10]};${VOC[$ZAHL+2]}" >> voc-files/$VOCBENUTZER.mpc1
+					
+					elif [ $ZAHL99 = 4 ]
+					
+					then
+
+						if [ -d voc-files ]; then
+							echo ""
+						else
+							mkdir voc-files
+						fi
+					
+					echo "${VOC[$ZAHL+2]};${VOC[$ZAHL+6]};${VOC[$ZAHL+10]};${VOC[$ZAHL+14]}" >> voc-files/$VOCBENUTZER.mpc1
+					
+					fi 2> /dev/null
+
+					for i in 1 2 3 4; do
+					
+					if [ -z ${VOC[$ZAHL+2]} ]
+
+					then
+
+						rm voc-files/$VOCBENUTZER.mpc1
+
+						echo "${VOC[$ZAHL+2]};${VOC[$ZAHL-6]};${VOC[$ZAHL-10]};${VOC[$ZAHL-14]}" >> voc-files/$VOCBENUTZER.mpc1
+						
+					elif [ -z ${VOC[$ZAHL+6]} ]
+
+					then
+
+						rm voc-files/$VOCBENUTZER.mpc1
+
+						echo "${VOC[$ZAHL-6]};${VOC[$ZAHL+2]};${VOC[$ZAHL-10]};${VOC[$ZAHL-14]}" >> voc-files/$VOCBENUTZER.mpc1
+
+					elif [ -z ${VOC[$ZAHL+10]} ]
+
+					then
+
+						rm voc-files/$VOCBENUTZER.mpc1
+
+						echo "${VOC[$ZAHL-10]};${VOC[$ZAHL-6]};${VOC[$ZAHL+2]};${VOC[$ZAHL-14]}" >> voc-files/$VOCBENUTZER.mpc1
+
+					elif [ -z ${VOC[$ZAHL+14]} ]
+
+					then
+
+						rm voc-files/$VOCBENUTZER.mpc1
+
+						echo "${VOC[$ZAHL-14]};${VOC[$ZAHL-6]};${VOC[$ZAHL-10]};${VOC[$ZAHL+2]}" >> voc-files/$VOCBENUTZER.mpc1
+
+					fi 2> /dev/null
+
+					done
+					
+										
+					MULTI2=($( cat voc-files/$VOCBENUTZER.mpc1 | tr '\n' ';' ))
+										
+					MULTIZAHL=0
+
+					MULTIZAEHLER=1
+					
+					for i in 1 2 3 4; do
+					
+					echo "   $MULTIZAEHLER -> ${MULTI2[$MULTIZAHL]}"
+					
+					MULTIZAEHLER=$(($MULTIZAEHLER+1))
+
+					MULTIZAHL=$(($MULTIZAHL+1))
+					
+					done
+
+
+
+cat << EOF
+   ****************************
+EOF
+
+				echo -n "   Eingabe: "; read ANSWER
+
+
+				done
+
+				ANSWER=$(($ANSWER-1))
+
+				ANSWERMULTI1=${MULTI2[$ANSWER]}
+
+				rm voc-files/$VOCBENUTZER.mpc1
+
+				ZAHL=$(($ZAHL+2))
+
+					if [ $ANSWERMULTI1 = ${VOC[$ZAHL]} ]
+        				then
+
+					PROZENT2=$(($PROZENT2+4))
+
+					#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+					ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+					ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+					BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "#"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+					RICHTIG=$(($RICHTIG+1))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   **[INFO]*********************
+   ${VOC[$ZAHL]}
+   ${VOC[$ZAHL+1]}
+   Richtig $VOCBENUTZER :)
+   *****************************
+   Zum Fortfahren Enter druecken
+
+EOF
+					ZAHL=$(($ZAHL+2))
+					
+read
+
+					else
+
+						ZAHL=$(($ZAHL+1))
+
+						if [ $ANSWER = ${VOC[$ZAHL]} ]
+
+						then
+
+						PROZENT2=$(($PROZENT2+4))
+
+					#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+					ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+					ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+					BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "#"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+					RICHTIG=$(($RICHTIG+1))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   **[INFO]*********************
+   ${VOC[$ZAHL]} 
+   ${VOC[$ZAHL-1]}
+   Richtig $VOCBENUTZER :)
+   *****************************
+   Zum Fortfahren Enter druecken
+
+EOF
+
+read
+
+						ZAHL=$(($ZAHL+1))
+
+
+						else					
+						
+						PROZENT2=$(($PROZENT2+4))
+
+					#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+					ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+					ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+					BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "#"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+					FALSCH=$(($FALSCH+1))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   --[!]------------------------
+   Falsch :( Antwort(en):
+   ${VOC[$ZAHL]}
+   ${VOC[$ZAHL-1]}
+   -----------------------------
+   Zum Fortfahren Enter druecken
+
+EOF
+
+read
+
+				if [ -d voc-files ]; then
+					echo ""
+				else
+					mkdir voc-files
+				fi
+				echo "${VOC[$ZAHL-3]};${VOC[$ZAHL-2]};${VOC[$ZAHL-1]};${VOC[$ZAHL]}" >> voc-files/$VOCBENUTZER.w1
+						ZAHL=$(($ZAHL+1))
+
+
+						fi
+
+					fi
+        			done
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+    Auswertung:
+
+    Richtig: $RICHTIG
+    Falsch:  $FALSCH
+   *****************************
+   Zum Fortfahren Enter druecken
+
+EOF
+
+read
+				
+				if [ $STAT = ON ]
+
+				then
+
+				if [ -d voc-files ]; then
+					echo ""
+				else
+					mkdir voc-files
+				fi
+				date >> voc-files/$RESULT
+				echo "Vokabeldatei: $1" >> voc-files/$RESULT
+				echo "Sprachen: ${VOC[0]} - ${VOC[2]} Multiple-Choice" >> voc-files/$RESULT
+				echo "Richtig: $RICHTIG" >> voc-files/$RESULT
+				echo "Falsch: $FALSCH" >> voc-files/$RESULT
+				echo "Benutzer: $VOCBENUTZER" >> voc-files/$RESULT
+
+				else
+
+				echo " "
+
+
+				fi
+
+				if [ $FALSCH -gt "0" ]
+
+				then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]***********************
+   Falsch uebersetzte Vokabeln
+   nochmal abfragen?
+   ----------------------------
+   Taste 1 -> Ja
+   Taste 2 -> Nein
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+
+				echo -n "   Eingabe: " ; read WH1 
+
+					if [ $WH1 = 1 ]
+
+					then
+
+						if [ $STAT = ON ]
+
+						then
+
+							if [ -d voc-files ]; then
+								echo ""
+							else
+								mkdir voc-files
+							fi
+							echo "Wiederholt: Ja" >> voc-files/$RESULT
+							echo "" >> voc-files/$RESULT
+							echo "" >> voc-files/$RESULT
+
+						else
+
+							echo " "
+
+						fi
+
+
+						abfragewiederholung1
+
+					else
+
+						if [ $STAT = ON ]
+
+						then
+
+							if [ -d voc-files ]; then
+								echo ""
+							else
+								mkdir voc-files
+							fi
+							echo "Wiederholt: Nein" >> voc-files/$RESULT
+							echo "" >> voc-files/$RESULT
+							echo "" >> voc-files/$RESULT
+						
+						else
+
+							echo " "
+
+						fi
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   --[!]------------------------
+   Abfragewiederholung
+   abgebrochen :(
+   -----------------------------
+   Zum Fortfahren Enter druecken
+EOF
+read
+
+					rm voc-files/$VOCBENUTZER.w1
+
+					fi
+
+				else
+
+					if [ $STAT = ON ]
+
+					then
+				
+						if [ -d voc-files ]; then
+							echo ""
+						else
+							mkdir voc-files
+						fi
+						echo "Wiederholt: Nicht noetig" >> voc-files/$RESULT
+						echo "" >> voc-files/$RESULT
+						echo "" >> voc-files/$RESULT
+					
+					else
+
+						echo " "
+
+
+					fi
+
+				fi
+				
+
+				unset ZAHL
+				unset RICHTIG
+				unset FALSCH
+
+}
+
+multi2 ()
+
+{
+
+				ANZAHL2=${#VOC[*]}
+				ZAHL2=$(($ANZAHL2-1))
+				RICHTIG=0
+				FALSCH=0
+				PROZENT1=$((${#VOC[*]}-4))
+				PROZENT2=0
+				PROZENT3=5
+				#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+				ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+				ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+				while [ $ZAHL2 -gt "3" ]
+
+        			do
+
+				BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "#"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+				ZAHL2=$(($ZAHL2-1))
+				
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   **[?]***********************
+   Wie lautet die Uebersetzung
+   von '${VOC[$ZAHL2]}'?
+   ----------------------------
+EOF
+
+					ZAHL100=$((RANDOM % 4 + 1 ))
+
+					if [ $ZAHL100 = 1 ]
+					
+					then
+
+						if [ -d voc-files ]; then
+							echo ""
+						else
+							mkdir voc-files
+						fi
+
+						if [ -z ${VOC[$ZAHL2-14]} ]
+
+						then
+
+						echo "${VOC[$ZAHL2-2]};${VOC[$ZAHL2+6]};${VOC[$ZAHL2+10]};${VOC[$ZAHL2+14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "${VOC[$ZAHL2-10]};${VOC[$ZAHL2-6]};${VOC[$ZAHL2-2]};${VOC[$ZAHL2-14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+
+						if [ -z ${VOC[$ZAHL2-10]} ]
+
+						then
+
+						rm voc-files/$VOCBENUTZER.mpc2
+
+						echo "${VOC[$ZAHL2-2]};${VOC[$ZAHL2+6]};${VOC[$ZAHL2+10]};${VOC[$ZAHL2+14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+				
+						if [ -z ${VOC[$ZAHL2-6]} ]
+
+						then
+
+						rm voc-files/$VOCBENUTZER.mpc2
+
+						echo "${VOC[$ZAHL2-2]};${VOC[$ZAHL2+6]};${VOC[$ZAHL2+10]};${VOC[$ZAHL2+14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+
+						if [ -z ${VOC[$ZAHL2-2]} ]
+
+						then
+
+						rm voc-files/$VOCBENUTZER.mpc2
+
+						echo "${VOC[$ZAHL2-2]};${VOC[$ZAHL2+6]};${VOC[$ZAHL2+10]};${VOC[$ZAHL2+14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+
+					elif [ $ZAHL100 = 2 ]
+					
+					then
+
+						if [ -d voc-files ]; then
+							echo ""
+						else
+							mkdir voc-files
+						fi
+
+						if [ -z ${VOC[$ZAHL2-14]} ]
+
+						then
+
+						echo "${VOC[$ZAHL2+6]};${VOC[$ZAHL2-2]};${VOC[$ZAHL2+10]};${VOC[$ZAHL2+14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "${VOC[$ZAHL2-6]};${VOC[$ZAHL2-2]};${VOC[$ZAHL2-10]};${VOC[$ZAHL2-14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+
+						if [ -z ${VOC[$ZAHL2-10]} ]
+
+						then
+
+						rm voc-files/$VOCBENUTZER.mpc2
+
+						echo "${VOC[$ZAHL2+6]};${VOC[$ZAHL2-2]};${VOC[$ZAHL2+10]};${VOC[$ZAHL2+14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+				
+						if [ -z ${VOC[$ZAHL2-6]} ]
+
+						then
+
+						rm voc-files/$VOCBENUTZER.mpc2
+
+						echo "${VOC[$ZAHL2+6]};${VOC[$ZAHL2-2]};${VOC[$ZAHL2+10]};${VOC[$ZAHL2+14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+
+						if [ -z ${VOC[$ZAHL2-2]} ]
+
+						then
+
+						rm voc-files/$VOCBENUTZER.mpc2
+
+						echo "${VOC[$ZAHL2+6]};${VOC[$ZAHL2-2]};${VOC[$ZAHL2+10]};${VOC[$ZAHL2+14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+
+					elif [ $ZAHL100 = 3 ]
+					
+					then
+
+						if [ -d voc-files ]; then
+							echo ""
+						else
+							mkdir voc-files
+						fi
+
+						if [ -z ${VOC[$ZAHL2-14]} ]
+
+						then
+
+						echo "${VOC[$ZAHL2+10]};${VOC[$ZAHL2+6]};${VOC[$ZAHL2-2]};${VOC[$ZAHL2+14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "${VOC[$ZAHL2-14]};${VOC[$ZAHL2-6]};${VOC[$ZAHL2-10]};${VOC[$ZAHL2-2]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+
+						if [ -z ${VOC[$ZAHL2-10]} ]
+
+						then
+
+						rm voc-files/$VOCBENUTZER.mpc2
+
+						echo "${VOC[$ZAHL2+10]};${VOC[$ZAHL2+6]};${VOC[$ZAHL2-2]};${VOC[$ZAHL2+14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+				
+						if [ -z ${VOC[$ZAHL2-6]} ]
+
+						then
+
+						rm voc-files/$VOCBENUTZER.mpc2
+
+						echo "${VOC[$ZAHL2+10]};${VOC[$ZAHL2+6]};${VOC[$ZAHL2-2]};${VOC[$ZAHL2+14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+
+						if [ -z ${VOC[$ZAHL2-2]} ]
+
+						then
+
+						rm voc-files/$VOCBENUTZER.mpc2
+
+						echo "${VOC[$ZAHL2+10]};${VOC[$ZAHL2+6]};${VOC[$ZAHL2-2]};${VOC[$ZAHL2+14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+					
+					elif [ $ZAHL100 = 4 ]
+					
+					then
+
+						if [ -d voc-files ]; then
+							echo ""
+						else
+							mkdir voc-files
+						fi
+
+						if [ -z ${VOC[$ZAHL2-14]} ]
+
+						then
+
+						echo "${VOC[$ZAHL2+14]};${VOC[$ZAHL2+6]};${VOC[$ZAHL2+10]};${VOC[$ZAHL2-2]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "${VOC[$ZAHL2-2]};${VOC[$ZAHL2-6]};${VOC[$ZAHL2-10]};${VOC[$ZAHL2-14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+
+						if [ -z ${VOC[$ZAHL2-10]} ]
+
+						then
+
+						rm voc-files/$VOCBENUTZER.mpc2
+
+						echo "${VOC[$ZAHL2+14]};${VOC[$ZAHL2+6]};${VOC[$ZAHL2+10]};${VOC[$ZAHL2-2]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+				
+						if [ -z ${VOC[$ZAHL2-6]} ]
+
+						then
+
+						rm voc-files/$VOCBENUTZER.mpc2
+
+						echo "${VOC[$ZAHL2+14]};${VOC[$ZAHL2+6]};${VOC[$ZAHL2+10]};${VOC[$ZAHL2-2]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+
+						if [ -z ${VOC[$ZAHL2-2]} ]
+
+						then
+
+						rm voc-files/$VOCBENUTZER.mpc2
+
+						echo "${VOC[$ZAHL2+14]};${VOC[$ZAHL2+6]};${VOC[$ZAHL2+10]};${VOC[$ZAHL2-2]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+					fi
+
+				
+					MULTI3=($( cat voc-files/$VOCBENUTZER.mpc2 | tr '\n' ';' ))
+										
+					MULTIZAHL3=0
+
+					MULTIZAEHLER2=1
+					
+					for i in 1 2 3 4; do
+					
+					echo "   $MULTIZAEHLER2 -> ${MULTI3[$MULTIZAHL3]}"
+					
+					MULTIZAEHLER2=$(($MULTIZAEHLER2+1))
+
+					MULTIZAHL3=$(($MULTIZAHL3+1))
+					
+					done
+
+
+
+cat << EOF
+   ****************************
+EOF
+				echo -n "   Eingabe: "; read ANSWER
+
+				while [ -z $ANSWER ]
+
+				do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]***********************
+    Ungueltige Eingabe! Zum
+    Wiederholen der Eingabe
+    die Enter-Taste druecken
+   ****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   **[?]***********************
+   Wie lautet die Uebersetzung
+   von '${VOC[$ZAHL2]}'?
+   ----------------------------
+EOF
+
+					ZAHL100=$((RANDOM % 4 + 1 ))
+
+					if [ $ZAHL100 = 1 ]
+					
+					then
+
+						if [ -d voc-files ]; then
+							echo ""
+						else
+							mkdir voc-files
+						fi
+
+						if [ -z ${VOC[$ZAHL2-14]} ]
+
+						then
+
+						echo "${VOC[$ZAHL2-2]};${VOC[$ZAHL2+6]};${VOC[$ZAHL2+10]};${VOC[$ZAHL2+14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "${VOC[$ZAHL2-10]};${VOC[$ZAHL2-6]};${VOC[$ZAHL2-2]};${VOC[$ZAHL2-14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+
+						if [ -z ${VOC[$ZAHL2-10]} ]
+
+						then
+
+						rm voc-files/$VOCBENUTZER.mpc2
+
+						echo "${VOC[$ZAHL2-2]};${VOC[$ZAHL2+6]};${VOC[$ZAHL2+10]};${VOC[$ZAHL2+14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+				
+						if [ -z ${VOC[$ZAHL2-6]} ]
+
+						then
+
+						rm voc-files/$VOCBENUTZER.mpc2
+
+						echo "${VOC[$ZAHL2-2]};${VOC[$ZAHL2+6]};${VOC[$ZAHL2+10]};${VOC[$ZAHL2+14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+
+						if [ -z ${VOC[$ZAHL2-2]} ]
+
+						then
+
+						rm voc-files/$VOCBENUTZER.mpc2
+
+						echo "${VOC[$ZAHL2-2]};${VOC[$ZAHL2+6]};${VOC[$ZAHL2+10]};${VOC[$ZAHL2+14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+
+					elif [ $ZAHL100 = 2 ]
+					
+					then
+
+						if [ -d voc-files ]; then
+							echo ""
+						else
+							mkdir voc-files
+						fi
+
+						if [ -z ${VOC[$ZAHL2-14]} ]
+
+						then
+
+						echo "${VOC[$ZAHL2+6]};${VOC[$ZAHL2-2]};${VOC[$ZAHL2+10]};${VOC[$ZAHL2+14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "${VOC[$ZAHL2-6]};${VOC[$ZAHL2-2]};${VOC[$ZAHL2-10]};${VOC[$ZAHL2-14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+
+						if [ -z ${VOC[$ZAHL2-10]} ]
+
+						then
+
+						rm voc-files/$VOCBENUTZER.mpc2
+
+						echo "${VOC[$ZAHL2+6]};${VOC[$ZAHL2-2]};${VOC[$ZAHL2+10]};${VOC[$ZAHL2+14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+				
+						if [ -z ${VOC[$ZAHL2-6]} ]
+
+						then
+
+						rm voc-files/$VOCBENUTZER.mpc2
+
+						echo "${VOC[$ZAHL2+6]};${VOC[$ZAHL2-2]};${VOC[$ZAHL2+10]};${VOC[$ZAHL2+14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+
+						if [ -z ${VOC[$ZAHL2-2]} ]
+
+						then
+
+						rm voc-files/$VOCBENUTZER.mpc2
+
+						echo "${VOC[$ZAHL2+6]};${VOC[$ZAHL2-2]};${VOC[$ZAHL2+10]};${VOC[$ZAHL2+14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+
+					elif [ $ZAHL100 = 3 ]
+					
+					then
+
+						if [ -d voc-files ]; then
+							echo ""
+						else
+							mkdir voc-files
+						fi
+
+						if [ -z ${VOC[$ZAHL2-14]} ]
+
+						then
+
+						echo "${VOC[$ZAHL2+10]};${VOC[$ZAHL2+6]};${VOC[$ZAHL2-2]};${VOC[$ZAHL2+14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "${VOC[$ZAHL2-14]};${VOC[$ZAHL2-6]};${VOC[$ZAHL2-10]};${VOC[$ZAHL2-2]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+
+						if [ -z ${VOC[$ZAHL2-10]} ]
+
+						then
+
+						rm voc-files/$VOCBENUTZER.mpc2
+
+						echo "${VOC[$ZAHL2+10]};${VOC[$ZAHL2+6]};${VOC[$ZAHL2-2]};${VOC[$ZAHL2+14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+				
+						if [ -z ${VOC[$ZAHL2-6]} ]
+
+						then
+
+						rm voc-files/$VOCBENUTZER.mpc2
+
+						echo "${VOC[$ZAHL2+10]};${VOC[$ZAHL2+6]};${VOC[$ZAHL2-2]};${VOC[$ZAHL2+14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+
+						if [ -z ${VOC[$ZAHL2-2]} ]
+
+						then
+
+						rm voc-files/$VOCBENUTZER.mpc2
+
+						echo "${VOC[$ZAHL2+10]};${VOC[$ZAHL2+6]};${VOC[$ZAHL2-2]};${VOC[$ZAHL2+14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+					
+					elif [ $ZAHL100 = 4 ]
+					
+					then
+
+						if [ -d voc-files ]; then
+							echo ""
+						else
+							mkdir voc-files
+						fi
+
+						if [ -z ${VOC[$ZAHL2-14]} ]
+
+						then
+
+						echo "${VOC[$ZAHL2+14]};${VOC[$ZAHL2+6]};${VOC[$ZAHL2+10]};${VOC[$ZAHL2-2]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "${VOC[$ZAHL2-2]};${VOC[$ZAHL2-6]};${VOC[$ZAHL2-10]};${VOC[$ZAHL2-14]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+
+						if [ -z ${VOC[$ZAHL2-10]} ]
+
+						then
+
+						rm voc-files/$VOCBENUTZER.mpc2
+
+						echo "${VOC[$ZAHL2+14]};${VOC[$ZAHL2+6]};${VOC[$ZAHL2+10]};${VOC[$ZAHL2-2]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+				
+						if [ -z ${VOC[$ZAHL2-6]} ]
+
+						then
+
+						rm voc-files/$VOCBENUTZER.mpc2
+
+						echo "${VOC[$ZAHL2+14]};${VOC[$ZAHL2+6]};${VOC[$ZAHL2+10]};${VOC[$ZAHL2-2]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+
+						if [ -z ${VOC[$ZAHL2-2]} ]
+
+						then
+
+						rm voc-files/$VOCBENUTZER.mpc2
+
+						echo "${VOC[$ZAHL2+14]};${VOC[$ZAHL2+6]};${VOC[$ZAHL2+10]};${VOC[$ZAHL2-2]}" >> voc-files/$VOCBENUTZER.mpc2
+
+						else
+					
+						echo "" >> voc-files/$VOCBENUTZER.mpc2
+
+						fi 2> /dev/null
+
+					fi
+
+				
+					MULTI3=($( cat voc-files/$VOCBENUTZER.mpc2 | tr '\n' ';' ))
+										
+					MULTIZAHL3=0
+
+					MULTIZAEHLER2=1
+					
+					for i in 1 2 3 4; do
+					
+					echo "   $MULTIZAEHLER2 -> ${MULTI3[$MULTIZAHL3]}"
+
+					MULTIZAEHLER2=$(($MULTIZAEHLER2+1))
+					
+					MULTIZAHL3=$(($MULTIZAHL3+1))
+					
+					done
+
+					
+
+cat << EOF
+   ****************************
+EOF
+				echo -n "   Eingabe: "; read ANSWER
+
+				done
+
+				ANSWER=$(($ANSWER-1))
+
+				ANSWERMULTI2=${MULTI3[$ANSWER]}
+
+				rm voc-files/$VOCBENUTZER.mpc2
+
+				ZAHL2=$(($ZAHL2-2))
+
+					if [ $ANSWERMULTI2 = ${VOC[$ZAHL2]} ]
+					then
+
+					PROZENT2=$(($PROZENT2+4))
+
+					#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+					ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+					ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+					BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "#"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+					RICHTIG=$(($RICHTIG+1))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   **[INFO]*********************
+   ${VOC[$ZAHL2]} 
+   ${VOC[$ZAHL2+1]}
+   Richtig $VOCBENUTZER :)
+   *****************************
+   Zum Fortfahren Enter druecken
+
+EOF
+
+read
+
+					ZAHL2=$(($ZAHL2-1))
+
+
+					else
+
+						ZAHL2=$(($ZAHL2+1))
+
+						if [ $ANSWER = ${VOC[$ZAHL2]} ]
+
+						then
+
+						PROZENT2=$(($PROZENT2+4))
+
+					#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+					ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+					ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+					BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "#"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+					RICHTIG=$(($RICHTIG+1))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   **[INFO]*********************
+   ${VOC[$ZAHL2]} 
+   ${VOC[$ZAHL2-1]}
+   Richtig $VOCBENUTZER :)
+   *****************************
+   Zum Fortfahren Enter druecken
+
+EOF
+
+read
+
+						ZAHL2=$(($ZAHL2-2))
+						
+
+						else
+
+						PROZENT2=$(($PROZENT2+4))
+
+					#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+					ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+					ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+					BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "#"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+					FALSCH=$(($FALSCH+1))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   --[!]------------------------
+   Falsch :( Antwort(en):
+   ${VOC[$ZAHL2]}
+   ${VOC[$ZAHL2-1]}
+   -----------------------------
+   Zum Fortfahren Enter druecken
+
+EOF
+
+read
+
+		if [ -d voc-files ]; then
+			echo ""
+		else
+			mkdir voc-files
+		fi			
+		echo "${VOC[$ZAHL2-1]};${VOC[$ZAHL2]};${VOC[$ZAHL2+1]};${VOC[$ZAHL2+2]}" >> voc-files/$VOCBENUTZER.w2
+						ZAHL2=$(($ZAHL2-2))
+
+
+						fi
+					fi
+        			done
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+    Auswertung:
+
+    Richtig: $RICHTIG
+    Falsch:  $FALSCH
+   *****************************
+   Zum Fortfahren Enter druecken
+
+EOF
+
+read
+
+				if [ $STAT = ON ]
+
+				then
+
+				if [ -d voc-files ]; then
+					echo ""
+				else
+					mkdir voc-files
+				fi
+				date >> voc-files/$RESULT
+				echo "Vokabeldatei: $1" >> voc-files/$RESULT
+				echo "Sprachen: ${VOC[2]} - ${VOC[0]} Multiple-Choice" >> voc-files/$RESULT
+				echo "Richtig: $RICHTIG" >> voc-files/$RESULT
+				echo "Falsch: $FALSCH" >> voc-files/$RESULT
+				echo "Benutzer: $VOCBENUTZER" >> voc-files/$RESULT
+				
+				else
+
+				echo " "
+
+				fi
+
+				if [ $FALSCH -gt "0" ]
+
+				then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]***********************
+   Falsch uebersetzte Vokabeln
+   nochmal abfragen?
+   ----------------------------
+   Taste 1 -> Ja
+   Taste 2 -> Nein
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+
+				echo -n "   Eingabe: " ; read WH2 
+
+					if [ $WH2 = 1 ]
+
+					then
+
+						if [ $STAT = ON ]
+
+						then
+						
+							if [ -d voc-files ]; then
+								echo ""
+							else
+								mkdir voc-files
+							fi
+							echo "Wiederholt: Ja" >> voc-files/$RESULT
+							echo "" >> voc-files/$RESULT
+							echo "" >> voc-files/$RESULT
+
+						else
+
+							echo " "
+
+						fi
+
+
+						abfragewiederholung2
+
+					else
+
+						if [ $STAT = ON ]
+
+						then						
+
+							if [ -d voc-files ]; then
+								echo ""
+							else
+								mkdir voc-files
+							fi
+							echo "Wiederholt: Nein" >> voc-files/$RESULT
+							echo "" >> voc-files/$RESULT
+							echo "" >> voc-files/$RESULT
+
+						else
+
+							echo " "
+
+						fi
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   --[!]------------------------
+   Abfragewiederholung
+   abgebrochen :(
+   -----------------------------
+   Zum Fortfahren Enter druecken
+EOF
+read
+
+					rm voc-files/$VOCBENUTZER.w2
+
+					fi
+
+				else
+
+					if [ $STAT = ON ]
+
+					then
+				
+						if [ -d voc-files ]; then
+							echo ""
+						else
+							mkdir voc-files
+						fi
+						echo "Wiederholt: Nicht noetig" >> voc-files/$RESULT
+						echo "" >> voc-files/$RESULT
+						echo "" >> voc-files/$RESULT
+
+					else
+
+						echo " "
+
+					fi
+
+				fi
+
+				unset RICHTIG
+				unset FALSCH
+				unset ZAHL2
+
+
+}
+
+vokabelneu ()
+
+{
+
+				VOC=($( cat $1 | tr '\n' ';' ))
+
+				KEINGABE2=1
+				
+				while [ $KEINGABE2 = 1 ]
+
+				do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]***********************
+   Bitte geben Sie das neue
+   Wort in ${VOC[0]} ein
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+				echo -n "   Eingabe: " ; read NEINGABE1
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]***********************
+   Bitte geben Sie nun das
+   uebersetzte Wort in
+   ${VOC[2]} ein
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+				echo -n "   Eingabe: " ; read NEINGABE2
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]*************************
+   Sie koennen zu jedem Wort
+   1 Synonym eingeben.
+   ------------------------------
+   1 -> Synonyme eingeben
+   2 -> Synonyme nicht eingeben
+   ******************************
+   Mit Enter bestaetigen
+   ______________________________
+EOF
+				echo -n "   Eingabe: " ; read SYNO1
+
+				if [ $SYNO1 = 1 ]
+
+				then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]***********************
+   Bitte geben Sie nun das
+   Synonym fuer 
+   '$NEINGABE1' ein
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+				echo -n "   Eingabe: " ; read SYNO2
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]***********************
+   Bitte geben Sie nun das
+   Synonym fuer 
+   '$NEINGABE2' ein
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+				echo -n "   Eingabe: " ; read SYNO3
+
+				else
+
+				echo " "
+
+				fi
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]*************************
+   Folgende Woerter + Synonyme
+   wurden von Ihnen eingegeben:
+
+   $NEINGABE1  
+   $SYNO2 
+   <-> 
+   $NEINGABE2
+   $SYNO3
+   ------------------------------
+   Taste 1 -> Woerter speichern
+   Taste 2 -> Abbrechen
+   ******************************
+   Mit Enter bestaetigen
+   ______________________________
+EOF
+				echo -n "   Eingabe: " ; read SAVE1
+
+				if [ $SAVE1 = 1 ]
+
+				then
+
+				echo "$NEINGABE1;$SYNO2;$NEINGABE2;$SYNO3" >> $1
+
+				unset NEINGABE1
+				unset NEINGABE2
+				unset SYNO2
+				unset SYNO3
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]***********************
+   Neue Woerter wurden in der
+   Vokabeldatei $1
+   gespeichert :)
+   *******************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+				else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   --[!]-------------------------
+   Speichern abgebrochen
+   ------------------------------
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+				fi
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]***********************
+   Eine weitere Vokabel
+   hinzufuegen?
+   ----------------------------
+   Taste 1 -> Ja
+   Taste 2 -> Nein
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+				echo -n "   Eingabe: " ; read KEINGABE2
+
+				done
+
+}
+
+abfragewiederholung1 ()
+
+{
+
+RICHTIG=0
+FALSCH=0
+ZAHL=0
+
+VOC=($( cat voc-files/$VOCBENUTZER.w1 | tr '\n' ';' ))
+
+PROZENT1=$((${#VOC[*]}))
+PROZENT2=0
+PROZENT3=5
+#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+				while [ $ZAHL -lt ${#VOC[*]} ]
+
+        			do
+				
+				BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "#"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   **[?]***********************
+   Wie lautet die Uebersetzung
+   von '${VOC[$ZAHL]}'?
+   ****************************
+EOF
+				echo -n "   Eingabe: "; read ANSWER
+
+				while [ -z $ANSWER ]
+
+				do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]***********************
+    Ungueltige Eingabe! Zum
+    Wiederholen der Eingabe
+    die Enter-Taste druecken
+   ****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   **[?]***********************
+   Wie lautet die Uebersetzung
+   von '${VOC[$ZAHL]}'?
+   ****************************
+EOF
+				echo -n "   Eingabe: "; read ANSWER
+
+				done
+
+				ZAHL=$(($ZAHL+2))
+
+					if [ $ANSWER = ${VOC[$ZAHL]} ]
+        				then
+
+					PROZENT2=$(($PROZENT2+4))
+
+					#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+					ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+					ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+					BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "#"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+					RICHTIG=$(($RICHTIG+1))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   **[INFO]*********************
+   ${VOC[$ZAHL]}
+   ${VOC[$ZAHL+1]}
+   Richtig $VOCBENUTZER :)
+   *****************************
+   Zum Fortfahren Enter druecken
+
+EOF
+
+read
+
+					ZAHL=$(($ZAHL+2))
+
+					else
+
+					ZAHL=$(($ZAHL+1))
+
+						if [ $ANSWER = ${VOC[$ZAHL]} ]
+
+						then
+
+						PROZENT2=$(($PROZENT2+4))
+
+					#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+					ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+					ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+					BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "#"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+					RICHTIG=$(($RICHTIG+1))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   **[INFO]*********************
+   ${VOC[$ZAHL]} 
+   ${VOC[$ZAHL-1]}
+   Richtig $VOCBENUTZER :)
+   *****************************
+   Zum Fortfahren Enter druecken
+
+EOF
+
+read
+
+						ZAHL=$(($ZAHL+1))
+
+						else
+					
+						FALSCH=$(($FALSCH+1))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   --[!]------------------------
+   Falsch :( Antwort(en):
+   ${VOC[$ZAHL]}
+   ${VOC[$ZAHL-1]}
+   -----------------------------
+   Zum Fortfahren Enter druecken
+
+EOF
+
+read
+					
+						ZAHL=$(($ZAHL-3))
+
+						fi					
+
+					fi
+        			done
+
+				unset ZAHL
+				unset RICHTIG
+				unset FALSCH
+
+				rm voc-files/$VOCBENUTZER.w1
+
+}
+
+
+abfragewiederholung2 ()
+
+{
+
+VOC=($( cat voc-files/$VOCBENUTZER.w2 | tr '\n' ';' ))
+
+ANZAHL2=${#VOC[*]}
+ZAHL2=$(($ANZAHL2-1))
+RICHTIG=0
+FALSCH=0
+PROZENT1=$((${#VOC[*]}))
+PROZENT2=0
+PROZENT3=5
+#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+								
+				until [ $ZAHL2 -lt "0" ]
+
+        			do
+
+				BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "#"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+				
+				ZAHL2=$(($ZAHL2-1))
+				
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   **[?]***********************
+   Wie lautet die Uebersetzung
+   von '${VOC[$ZAHL2]}'?
+   ****************************
+EOF
+				echo -n "   Eingabe: "; read ANSWER
+
+				while [ -z $ANSWER ]
+
+				do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]***********************
+    Ungueltige Eingabe! Zum
+    Wiederholen der Eingabe
+    die Enter-Taste druecken
+   ****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   **[?]***********************
+   Wie lautet die Uebersetzung
+   von '${VOC[$ZAHL2]}'?
+   ****************************
+EOF
+				echo -n "   Eingabe: "; read ANSWER
+
+				done
+
+				ZAHL2=$(($ZAHL2-2))
+
+					if [ $ANSWER = ${VOC[$ZAHL2]} ]
+					then
+
+					PROZENT2=$(($PROZENT2+4))
+
+					#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+					ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+					ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+					BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "#"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+					RICHTIG=$(($RICHTIG+1))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   **[INFO]*********************
+   ${VOC[$ZAHL2]} 
+   ${VOC[$ZAHL2+1]}
+   Richtig $VOCBENUTZER :)
+   *****************************
+   Zum Fortfahren Enter druecken
+
+EOF
+
+read
+
+					ZAHL2=$(($ZAHL2-1))
+
+					else
+
+						ZAHL2=$(($ZAHL2+1))
+
+						if [ $ANSWER = ${VOC[$ZAHL2]} ]
+
+						then
+
+					PROZENT2=$(($PROZENT2+4))
+
+					#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+					ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+					ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+					BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "#"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+					RICHTIG=$(($RICHTIG+1))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   **[INFO]*********************
+   ${VOC[$ZAHL2]} 
+   ${VOC[$ZAHL2-1]}
+   Richtig $VOCBENUTZER :)
+   *****************************
+   Zum Fortfahren Enter druecken
+
+EOF
+
+read
+
+						ZAHL2=$(($ZAHL2-2))
+
+						else
+
+						FALSCH=$(($FALSCH+1))	
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   $ERG1 % $BALKEN
+   Richtig: $RICHTIG Falsch: $FALSCH
+   --[!]------------------------
+   Falsch :( Antwort(en):
+   ${VOC[$ZAHL2]}
+   ${VOC[$ZAHL2-1]}
+   -----------------------------
+   Zum Fortfahren Enter druecken
+
+EOF
+
+read
+						ZAHL2=$(($ZAHL2+2))
+
+						fi
+					fi
+        			done
+
+
+				unset RICHTIG
+				unset FALSCH
+				unset ZAHL2
+
+				rm voc-files/$VOCBENUTZER.w2
+
+}
+
+
+base ()
+
+{
+
+RICHTIG=0
+FALSCH=0
+ZAHL=4
+
+unset VOC
+
+VOC=($( cat $1 | tr '\n' ';' ))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[HAUPTMENUE]*******************
+   Voc-Datei: $1
+   Benutzer:  $VOCBENUTZER
+   ---------------------------------
+   Taste  1 -> Vokabelvorschau
+   Taste  2 -> Multiple Choice
+   Taste  3 -> Normalmodus
+   ---------------------------------
+   Taste  4 -> Vokabel suchen
+   Taste  5 -> Woerter hinzufuegen
+   Taste  6 -> Woerter loeschen
+   Taste  7 -> Optionen
+   Taste  8 -> Vokabeldatei wechseln
+   Taste  9 -> Benutzer wechseln
+   Taste 10 -> Audio abspielen
+   Taste  0 -> Beenden
+   *********************************
+   Mit Enter bestaetigen
+   _________________________________
+EOF
+		echo -n "   Eingabe: " ; read AUSWAHL
+
+			until [ $AUSWAHL -lt 12 ]
+
+			do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]***********************
+    Ungueltige Eingabe! Zum
+    Wiederholen der Eingabe
+    die Enter-Taste druecken
+   ****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[HAUPTMENUE]*******************
+   Voc-Datei: $1
+   Benutzer:  $VOCBENUTZER
+   ---------------------------------
+   Taste  1 -> Vokabelvorschau
+   Taste  2 -> Multiple Choice
+   Taste  3 -> Normalmodus
+   ---------------------------------
+   Taste  4 -> Vokabel suchen
+   Taste  5 -> Woerter hinzufuegen
+   Taste  6 -> Woerter loeschen
+   Taste  7 -> Optionen
+   Taste  8 -> Vokabeldatei wechseln
+   Taste  9 -> Benutzer wechseln
+   Taste 10 -> Audio abspielen
+   Taste  0 -> Beenden
+   *********************************
+   Mit Enter bestaetigen
+   _________________________________
+EOF
+			echo -n "   Eingabe: " ; read AUSWAHL
+
+			done
+
+			case $AUSWAHL in
+
+				1 )
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[VOKABELVORSCHAU]*************
+   In welcher Richtung sollen
+   die Vokabeln angezeigt werden?
+   Taste 1 -> ${VOC[0]} - ${VOC[2]}
+   Taste 2 -> ${VOC[2]} - ${VOC[0]}
+   --------------------------------
+   Taste 3 -> Zurueck
+   ********************************
+   Mit Enter bestaetigen
+   ________________________________
+EOF
+		echo -n "   Eingabe: " ; read AUSWAHLVOR
+
+			until [ $AUSWAHLVOR -lt 4 ]
+
+			do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]***********************
+    Ungueltige Eingabe! Zum
+    Wiederholen der Eingabe
+    die Enter-Taste druecken
+   ****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[VOKABELVORSCHAU]*************
+   In welcher Richtung sollen
+   die Vokabeln angezeigt werden?
+   Taste 1 -> ${VOC[0]} - ${VOC[2]}
+   Taste 2 -> ${VOC[2]} - ${VOC[0]}
+   --------------------------------
+   Taste 3 -> Zurueck
+   ********************************
+   Mit Enter bestaetigen
+   ________________________________
+EOF
+		echo -n "   Eingabe: " ; read AUSWAHLVOR
+
+			done
+
+			if [ $AUSWAHLVOR = 1 ]
+
+			then
+
+				vorschau $1
+
+			elif [ $AUSWAHLVOR = 2 ]
+
+			then
+
+				vorschau2 $1
+
+			elif [ $AUSWAHLVOR = 3 ]
+
+			then
+
+				base $1
+
+			fi
+
+				base $1
+
+				;;
+
+#------------------------------------------------------
+
+				2 )
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[MULTIPLE CHOICE]*************
+   In welcher Richtung soll
+   abgefragt werden?
+   Taste 1 -> ${VOC[0]} - ${VOC[2]}
+   Taste 2 -> ${VOC[2]} - ${VOC[0]}
+   --------------------------------
+   Taste 3 -> Zurueck
+   ********************************
+   Mit Enter bestaetigen
+   ________________________________
+EOF
+		echo -n "   Eingabe: " ; read AUSWAHLMC
+
+			until [ $AUSWAHLMC -lt 4 ]
+
+			do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]***********************
+    Ungueltige Eingabe! Zum
+    Wiederholen der Eingabe
+    die Enter-Taste druecken
+   ****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[MULTIPLE CHOICE]*************
+   In welcher Richtung soll
+   abgefragt werden?
+   Taste 1 -> ${VOC[0]} - ${VOC[2]}
+   Taste 2 -> ${VOC[2]} - ${VOC[0]}
+   --------------------------------
+   Taste 3 -> Zurueck
+   ********************************
+   Mit Enter bestaetigen
+   ________________________________
+EOF
+		echo -n "   Eingabe: " ; read AUSWAHLMC
+
+			done
+
+			if [ $AUSWAHLMC = 1 ]
+
+			then
+
+				multi1 $1
+
+			elif [ $AUSWAHLMC = 2 ]
+
+			then
+
+				multi2 $1
+
+			elif [ $AUSWAHLMC = 3 ]
+
+			then
+
+				base $1
+
+			fi
+
+				base $1
+
+				;;
+
+#------------------------------------------------------
+
+				3 )
+
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[NORMALMODUS]*****************
+   In welcher Richtung soll
+   abgefragt werden?
+   Taste 1 -> ${VOC[0]} - ${VOC[2]}
+   Taste 2 -> ${VOC[2]} - ${VOC[0]}
+   --------------------------------
+   Taste 3 -> Zurueck
+   ********************************
+   Mit Enter bestaetigen
+   ________________________________
+EOF
+		echo -n "   Eingabe: " ; read AUSWAHLNM
+
+			until [ $AUSWAHLNM -lt 4 ]
+
+			do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]***********************
+    Ungueltige Eingabe! Zum
+    Wiederholen der Eingabe
+    die Enter-Taste druecken
+   ****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[NORMALMODUS]*****************
+   In welcher Richtung soll
+   abgefragt werden?
+   Taste 1 -> ${VOC[0]} - ${VOC[2]}
+   Taste 2 -> ${VOC[2]} - ${VOC[0]}
+   --------------------------------
+   Taste 3 -> Zurueck
+   ********************************
+   Mit Enter bestaetigen
+   ________________________________
+EOF
+		echo -n "   Eingabe: " ; read AUSWAHLNM
+
+			done
+
+			if [ $AUSWAHLNM = 1 ]
+
+			then
+
+				normal1 $1
+
+			elif [ $AUSWAHLNM = 2 ]
+
+			then
+
+				normal2 $1
+
+			elif [ $AUSWAHLMC = 3 ]
+
+			then
+
+				base $1
+
+			fi
+
+				base $1
+
+				;;
+
+#------------------------------------------------------
+
+				4 ) 
+
+				KEINGABE1=1
+				
+				while [ $KEINGABE1 = 1 ]
+
+				do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]********************
+   Geben Sie die Vokabel
+   ein, nach der gesucht
+   werden soll
+   *************************
+   Mit Enter bestaetigen
+   _________________________
+EOF
+
+				echo -n "   Suche: " ; read SEINGABE
+
+				grep $SEINGABE $1
+
+				if [ $? = 0 ]
+				then
+
+				if [ -d voc-files ]; then
+					echo ""
+				else
+					mkdir voc-files
+				fi
+
+				grep $SEINGABE $1 > voc-files/$VOCBENUTZER.find
+				
+				FIND6=($( cat voc-files/$VOCBENUTZER.find | tr '\n' ';' ))
+	
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   --[ERGEBNIS]-----------------
+   ${VOC[0]}:
+   ${FIND6[0]} 
+   ${FIND6[1]}
+   <->
+   ${VOC[2]}:
+   ${FIND6[2]}
+   ${FIND6[3]}
+   -----------------------------
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+				rm voc-files/$VOCBENUTZER.find
+
+				else
+					
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]************************
+   Das Wort/Der Satz
+   wurde nicht in der
+   Vokabeldatei gefunden :(
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+				fi
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]***********************
+   Eine weitere Vokabel
+   suchen?
+   ----------------------------
+   Taste 1 -> Ja
+   Taste 2 -> Nein
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+				echo -n "   Eingabe: " ; read KEINGABE1
+
+				done
+
+				base $1
+
+				;;
+
+#------------------------------------------------------
+
+				5 )
+
+				vokabelneu $1
+
+				base $1
+
+				;;
+
+#------------------------------------------------------
+
+				6 )
+
+				KEINGABE3=1
+				
+				while [ $KEINGABE3 = 1 ]
+
+				do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]***********************
+   Bitte geben Sie das Wort
+   ein, dass geloescht werden
+   soll
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+				echo -n "   Eingabe: " ; read LEINGABE
+
+				grep $LEINGABE $1
+
+				if [ $? = 0 ]
+
+				then
+
+echo -en "\033[H\033[2J"
+cat << EOF
+   **[?]***************************
+   Sollen folgende Woerter
+   geloescht werden?
+EOF
+				ANZW1=($( grep $LEINGABE $1 | sed 's/;/ <-> /g' ))
+cat << EOF
+   $ANZW1
+   --------------------------------
+   Taste 1 -> Woerter loeschen
+   Taste 2 -> Loeschen abbrechen
+   ********************************
+   Mit Enter bestaetigen
+   ________________________________
+EOF
+				echo -n "   Eingabe: " ; read LAUSWAHL1
+
+					if [ $LAUSWAHL1 = 1 ]
+
+					then
+
+					if [ -d voc-files ]; then
+						echo ""
+					else
+						mkdir voc-files
+					fi
+
+					sed /$LEINGABE/d $1 > voc-files/$VOCBENUTZER.del
+
+					mv voc-files/$VOCBENUTZER.del $1
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Die Woerter wurden aus der
+   Vokabeldatei $1
+   entfernt :)
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+					else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   --[!]------------------------
+   Der Loeschvorgang wurde
+   abgebrochen
+   -----------------------------
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+					fi
+
+				else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   --[!]-------------------------
+   Das Wort/Der Satz ist nicht
+   in der Vokabeldatei 
+   $1
+   enthalten :(
+   ------------------------------
+   Zum Fortfahren Enter druecken	
+EOF
+
+read
+
+				fi
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]***********************
+   Eine weitere Vokabel
+   loeschen?
+   ----------------------------
+   Taste 1 -> Ja
+   Taste 2 -> Nein
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+				echo -n "   Eingabe: " ; read KEINGABE3
+
+				done
+
+				base $1
+
+				;;
+
+#------------------------------------------------------
+
+				7 )
+
+				KEINGABE4=1
+				
+				while [ $KEINGABE4 = 1 ]
+
+				do
+
+UXOS=`uname`
+UXOSR=`uname -r`
+UXM=`uname -m`
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[OPTIONEN]*********************
+   OS: $UXOS $UXOSR $UXM
+   ---------------------------------
+   Taste  1 -> Logging ON
+   Taste  2 -> Logging OFF
+   Taste  3 -> Results anzeigen
+   Taste  4 -> Results zuruecksetzen
+   Taste  5 -> Export (CSV und HTML)
+   Taste  6 -> Import
+   Taste  7 -> Voc-Datei drucken
+   Taste  8 -> Favoriten
+   Taste  9 -> Benutzerverwaltung
+   Taste 10 -> Audioverwaltung
+   Taste  0 -> Hauptmenue
+   ---------------------------------
+   Logging Status: $STAT
+   *********************************
+   Mit Enter bestaetigen
+   _________________________________
+EOF
+				echo -n "   Eingabe: " ; read OEINGABE
+
+				
+				if [ $OEINGABE = 1 ]
+
+				then
+
+				STAT="ON"
+				
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]**********************
+   Logging wurde eingeschaltet :)
+   ******************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+
+				elif [ $OEINGABE = 2 ]
+
+				then
+
+				STAT="OFF"
+				
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]*************************
+   Logging wurde ausgeschaltet :(
+   ******************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+	
+				
+				elif [ $OEINGABE = 3 ]
+				
+				then
+
+				echo -en "\033[H\033[2J"
+				
+				echo "Mit der Leertaste weiterblaettern ..."
+				
+				if [ -d voc-files ]; then
+					echo ""
+				else
+					mkdir voc-files
+				fi
+				more -16 voc-files/$RESULT
+				
+				echo -n "Taste ENTER -> Zurueck  "; read
+
+				elif [ $OEINGABE = 4 ]
+				
+				then
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]***********************
+   Sollen die Results wirklich
+   zurueckgesetzt werden?
+   Dadurch werden alle
+   Log-Eintraege geloescht.
+   ----------------------------
+   Taste 1 -> Ja
+   Taste 2 -> Nein
+   ****************************
+   Mit Enter bestaetigen
+   ----------------------------
+EOF
+				echo -n "   Eingabe: " ; read OK
+				if [ $OK = 1 ]
+				then
+
+				if [ -d voc-files ]; then
+					echo ""
+				else
+					mkdir voc-files
+				fi
+				rm voc-files/$RESULT
+				touch voc-files/$RESULT
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Eintraege in der Results.log
+   wurden erfolgreich geloescht.
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+				elif [ $OK = 2 ]
+				then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Results.log wurde nicht
+   zurueckgesetzt.
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+				
+				fi
+				
+				echo ""
+				echo -en "\033[H\033[2J"	
+				
+				
+				elif [ $OEINGABE = 5 ]
+
+				then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]**************************
+   Welches Format soll die
+   Datei verwenden?
+   -------------------------------
+   Taste 1 -> "Wort","Wort" (CSV)
+   Taste 2 ->  Wort,Wort (CSV)
+   Taste 3 ->  Wort<Tab>Wort (CSV)
+   Taste 4 ->  HTML
+   *******************************
+   Mit Enter bestaetigen
+   _______________________________
+EOF
+
+				echo -n "   Eingabe: " ; read KOMMA1
+
+				if [ $KOMMA1 = 1 ]
+
+				then
+
+				if [ -d voc-files ]; then
+					echo ""
+				else
+					mkdir voc-files
+				fi
+
+	sed 's/;/","/g' $1 | sed 's/^/"/g' | sed 's/$/"/g' > voc-files/$VOCBENUTZER.csv
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Die Vokabeldatei
+   $1
+   wurde in die CSV-Datei
+   "$VOCBENUTZER.csv" 
+   exportiert :)
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+				elif [ $KOMMA1 = 2 ]
+
+				then
+
+				if [ -d voc-files ]; then
+					echo ""
+				else
+					mkdir voc-files
+				fi
+
+	sed 's/;/,/g' $1 > voc-files/$VOCBENUTZER.csv
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Die Vokabeldatei
+   $1
+   wurde in die CSV-Datei
+   "$VOCBENUTZER.csv" 
+   exportiert :)
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+				elif [ $KOMMA1 = 3 ]
+
+				then
+
+				if [ -d voc-files ]; then
+					echo ""
+				else
+					mkdir voc-files
+				fi
+
+	cut -d \; -f 1,3 $1 | sed -e 's/;/\t/g' | sed '1d' > voc-files/$VOCBENUTZER.csv
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Die Vokabeldatei
+   $1
+   wurde in die CSV-Datei
+   "$VOCBENUTZER.csv" 
+   exportiert :)
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+				elif [ $KOMMA1 = 4 ]
+
+				then
+
+	if [ -d voc-files ]; then
+		echo ""
+	else
+		mkdir voc-files
+	fi
+
+	echo "<HTML>" > voc-files/$VOCBENUTZER.html
+	echo "<HEAD>" >> voc-files/$VOCBENUTZER.html
+	echo "<TITLE>" >> voc-files/$VOCBENUTZER.html
+	echo "${VOC[0]} - ${VOC[2]}" >> voc-files/$VOCBENUTZER.html
+	echo "</TITLE>" >> voc-files/$VOCBENUTZER.html
+	echo "</HEAD>" >> voc-files/$VOCBENUTZER.html
+	echo "<BODY>" >> voc-files/$VOCBENUTZER.html
+	echo "<br>" >> voc-files/$VOCBENUTZER.html
+	echo "<br>" >> voc-files/$VOCBENUTZER.html
+	echo "<H1>" >> voc-files/$VOCBENUTZER.html
+	echo "${VOC[0]} - ${VOC[2]}" >> voc-files/$VOCBENUTZER.html
+	echo "</H1>" >> voc-files/$VOCBENUTZER.html
+	echo "<br>" >> voc-files/$VOCBENUTZER.html
+	echo "<br>" >> voc-files/$VOCBENUTZER.html
+	echo "<TABLE border=1>" >> voc-files/$VOCBENUTZER.html
+	sed 's/;/\&\#160<\/TD><TD>/g' $1 | sed 's/^/<TR><TD>/g' | sed 's/$/\&\#160<\/TD><\/TR>/g' >> voc-files/$VOCBENUTZER.html
+	echo "</TABLE>" >> voc-files/$VOCBENUTZER.html
+	echo "</BODY>" >> voc-files/$VOCBENUTZER.html
+	echo "</HTML>" >> voc-files/$VOCBENUTZER.html
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Die Vokabeldatei
+   $1
+   wurde in die HTML-Datei
+   "$VOCBENUTZER.html"
+   exportiert :)
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+				fi
+
+
+				elif [ $OEINGABE = 6 ]
+
+				then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]************************
+   Geben Sie die Vokabeldatei
+   inklusive Pfad ein, aus der
+   Sie die Vokabeln importieren
+   wollen
+   *****************************
+   Mit Enter bestaetigen
+   _____________________________
+EOF
+
+				echo -n "   Eingabe: " ; read IMPORTV
+
+				VOC=($( cat $IMPORTV | tr '\n' ';' ))
+
+				#ANZAHL=${#VOC[*]}
+				ERGEBNIS=`cat $IMPORTV | sed 's/;/ /g' | wc -w`
+				ERGEBNISX=$(($ERGEBNIS-4))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Die Vokabeldatei enthaelt
+   folgende Sprachen:
+
+   ${VOC[0]} - ${VOC[2]}
+
+   Anzahl der Woerter: $ERGEBNISX
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+				VORIMPORT=`cat $1 | sed 's/;/ /g' | wc -w`
+
+				cat $IMPORTV | sed 1d >> $1
+
+				VOC=($( cat $1 | tr '\n' ';' ))
+
+				ANZAHLIMPORT=`cat $1 | sed 's/;/ /g' | wc -w`
+
+				ANZAHLIMPORTS=$(($ANZAHLIMPORT-4))
+				
+				IMPORTSUMME=$(($ANZAHLIMPORT-$VORIMPORT))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Anzahl der Importierten
+   Woerter: $IMPORTSUMME
+   Neue Anzahl der
+   Woerter: $ANZAHLIMPORTS
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+				base $1
+
+
+				elif [ $OEINGABE = 7 ]
+
+				then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]***********************
+   Soll die Vokabeldatei
+   $1
+   gedruckt werden?
+   ----------------------------
+   Taste 1 -> Ja
+   Taste 2 -> Nein
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+
+				echo -n "   Eingabe: " ; read DRUCKEN1
+
+					if [ $DRUCKEN1 = 1 ]
+
+					then
+
+					cat $1 | sed 's/;/ -> /g' | lpr
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Die Vokabeldatei
+   $1
+   wurde gedruckt :)
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+					else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   --[!]------------------------
+   Das Drucken wurde abgebrochen
+   -----------------------------
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+					fi
+
+
+				elif [ $OEINGABE = 8 ]
+
+				then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[FAVORITEN]***************
+   Taste 1 -> Favorit anlegen
+   Taste 2 -> Favorit loeschen
+   Taste 3 -> Zurueck
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+
+					echo -n "   Eingabe: " ; read FAVORITM
+
+					until [ $FAVORITM -lt 4 ]
+
+					do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]***********************
+    Ungueltige Eingabe! Zum
+    Wiederholen der Eingabe
+    die Enter-Taste druecken
+   ****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[FAVORITEN]***************
+   Taste 1 -> Favorit anlegen
+   Taste 2 -> Favorit loeschen
+   Taste 3 -> Zurueck
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+
+					echo -n "   Eingabe: " ; read FAVORITM
+
+					done
+
+					if [ $FAVORITM = 1 ]
+
+					then				
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]***********************
+   Wollen Sie die aktuelle
+   Vokabeldatei als Favorit
+   speichern?
+   ----------------------------
+   Taste 1 -> Ja
+   Taste 2 -> Nein
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+				
+						echo -n "   Eingabe: " ; read FAVORITA
+
+						if [ $FAVORITA = 1 ]
+
+						then
+
+						if [ -d voc-files ]; then
+							echo ""
+						else
+							mkdir voc-files
+						fi
+						echo $1 >> voc-files/voc-favoriten.dat
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   $1
+   wurde als Favorit gespeichert
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+						else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   --[!]------------------------
+   Das Speichern wurde 
+   abgebrochen
+   -----------------------------
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+						fi
+
+					elif [ $FAVORITM = 2 ]
+
+					then
+
+						FAVORITB=1
+				
+						while [ $FAVORITB = 1 ]
+
+						do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]***********************
+   Bitte geben Sie den Favorit
+   ein, der geloescht werden
+   soll
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+						echo -n "   Eingabe: " ; read FAVORITC
+
+						if [ -d voc-files ]; then
+							echo ""
+						else
+							mkdir voc-files
+						fi
+						grep $FAVORITC voc-files/voc-favoriten.dat
+
+						if [ $? = 0 ]
+
+						then
+
+echo -en "\033[H\033[2J"
+cat << EOF
+   **[?]***************************
+   Sollen folgende Favoriten
+   geloescht werden?
+EOF
+						ANZW2=($( grep $FAVORITC voc-files/voc-favoriten.dat ))
+cat << EOF
+   $ANZW2
+   --------------------------------
+   Taste 1 -> Favoriten loeschen
+   Taste 2 -> Loeschen abbrechen
+   ********************************
+   Mit Enter bestaetigen
+   ________________________________
+EOF
+						echo -n "   Eingabe: " ; read FAVORITD
+
+							if [ $FAVORITD = 1 ]
+
+							then
+
+					if [ -d voc-files ]; then
+						echo ""
+					else
+						mkdir voc-files
+					fi
+
+					sed /$FAVORITC/d voc-files/voc-favoriten.dat > voc-files/$VOCBENUTZER.fav
+
+					mv voc-files/$VOCBENUTZER.fav voc-files/voc-favoriten.dat
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]**********************
+   Die Favoriten wurden aus der
+   Voc-Favoritendatei entfernt :)
+   ******************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+							else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   --[!]------------------------
+   Der Loeschvorgang wurde
+   abgebrochen
+   -----------------------------
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+							fi
+
+						else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   --[!]-------------------------
+   Favorit(en) nicht
+   in der Favoritendatei 
+   enthalten :(
+   ------------------------------
+   Zum Fortfahren Enter druecken	
+EOF
+
+read
+
+						fi
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]***********************
+   Einen weiteren Favoriten
+   loeschen?
+   ----------------------------
+   Taste 1 -> Ja
+   Taste 2 -> Nein
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+						echo -n "   Eingabe: " ; read FAVORITB
+
+						done
+
+					
+					elif [ $FAVORITM = 3 ]
+
+					then
+
+					echo ""					
+
+					fi
+
+				elif [ $OEINGABE = 9 ]
+
+				then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[BENUTZERVERWALTUNG]******
+   Taste 1 -> Benutzer anlegen
+   Taste 2 -> Benutzer loeschen
+   Taste 3 -> Zurueck
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+
+					echo -n "   Eingabe: " ; read BENUTZERM
+
+					until [ $BENUTZERM -lt 4 ]
+
+					do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]***********************
+    Ungueltige Eingabe! Zum
+    Wiederholen der Eingabe
+    die Enter-Taste druecken
+   ****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[FAVORITEN]***************
+   Taste 1 -> Benutzer anlegen
+   Taste 2 -> Benutzer loeschen
+   Taste 3 -> Zurueck
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+
+					echo -n "   Eingabe: " ; read BENUTZERM
+
+					done
+
+					if [ $BENUTZERM = 1 ]
+
+					then				
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]***********************
+   Geben Sie den Namen des
+   neuen Benutzers ein
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+				
+						echo -n "   Eingabe: " ; read BENUTZERA
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]***********************
+   Wollen Sie den Benutzer
+   '$BENUTZERA'
+   in der Benutzerdatenbank
+   speichern?
+   ----------------------------
+   Taste 1 -> Ja
+   Taste 2 -> Nein
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+
+						echo -n "   Eingabe: " ; read BENUTZERSAVE
+
+						if [ $BENUTZERSAVE = 1 ]
+
+						then
+
+						if [ -d voc-files ]; then
+							echo ""
+						else
+							mkdir voc-files
+						fi
+						echo $BENUTZERA >> voc-files/voc-benutzer.dat
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   '$BENUTZERA'
+   wurde in der Benutzer-
+   datenbank gespeichert
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+						else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   --[!]------------------------
+   Das Speichern wurde 
+   abgebrochen
+   -----------------------------
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+						fi
+
+					elif [ $BENUTZERM = 2 ]
+
+					then
+
+						BENUTZERB=1
+				
+						while [ $BENUTZERB = 1 ]
+
+						do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]***********************
+   Bitte geben Sie den Benutzer
+   ein, der geloescht werden
+   soll
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+						echo -n "   Eingabe: " ; read BENUTZERC
+
+						if [ -d voc-files ]; then
+							echo ""
+						else
+							mkdir voc-files
+						fi
+						grep $BENUTZERC voc-files/voc-benutzer.dat
+
+						if [ $? = 0 ]
+
+						then
+
+echo -en "\033[H\033[2J"
+cat << EOF
+   **[?]***************************
+   Sollen folgende Benutzer
+   geloescht werden?
+EOF
+						ANZW3=($( grep $BENUTZERC voc-files/voc-benutzer.dat ))
+cat << EOF
+   $ANZW3
+   --------------------------------
+   Taste 1 -> Benutzer loeschen
+   Taste 2 -> Loeschen abbrechen
+   ********************************
+   Mit Enter bestaetigen
+   ________________________________
+EOF
+						echo -n "   Eingabe: " ; read BENUTZERD
+
+							if [ $BENUTZERD = 1 ]
+
+							then
+
+					if [ -d voc-files ]; then
+						echo ""
+					else
+						mkdir voc-files
+					fi
+					sed /$BENUTZERC/d voc-files/voc-benutzer.dat > voc-files/$VOCBENUTZER.ben
+
+					mv voc-files/$VOCBENUTZER.ben voc-files/voc-benutzer.dat
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]**********************
+   Die Benutzer wurden aus der
+   Benutzerdatenbank entfernt :)
+   ******************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+							else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   --[!]------------------------
+   Der Loeschvorgang wurde
+   abgebrochen
+   -----------------------------
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+							fi
+
+						else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   --[!]-------------------------
+   Die/Der Benutzer sind/ist
+   nicht in der Benutzerdaten-
+   bank enthalten :(
+   ------------------------------
+   Zum Fortfahren Enter druecken	
+EOF
+
+read
+
+						fi
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]***********************
+   Einen weiteren Benutzer
+   loeschen?
+   ----------------------------
+   Taste 1 -> Ja
+   Taste 2 -> Nein
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+						echo -n "   Eingabe: " ; read BENUTZERB
+
+						done
+
+					
+					elif [ $BENUTZERM = 3 ]
+
+					then
+
+					echo ""					
+
+					fi
+
+
+				elif [ $OEINGABE = 10 ]
+
+				then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[AUDIO-FAVORITEN]**********
+   Taste 1 -> A-Favorit anlegen
+   Taste 2 -> A-Favorit loeschen
+   Taste 3 -> Zurueck
+   *****************************
+   Mit Enter bestaetigen
+   _____________________________
+EOF
+
+					echo -n "   Eingabe: " ; read AFAVORITM
+
+					until [ $AFAVORITM -lt 4 ]
+
+					do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]***********************
+    Ungueltige Eingabe! Zum
+    Wiederholen der Eingabe
+    die Enter-Taste druecken
+   ****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[AUDIO-FAVORITEN]**********
+   Taste 1 -> A-Favorit anlegen
+   Taste 2 -> A-Favorit loeschen
+   Taste 3 -> Zurueck
+   *****************************
+   Mit Enter bestaetigen
+   _____________________________
+EOF
+
+					echo -n "   Eingabe: " ; read AFAVORITM
+
+					done
+
+					if [ $AFAVORITM = 1 ]
+
+					then				
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]***********************
+   Geben Sie den Player inkl.
+   Optionen ein den Sie ver-
+   wenden wollen (z.B. mplayer)
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+				
+						echo -n "   Eingabe: " ; read AFAVORITA
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]************************
+   Geben Sie einen lokalen oder
+   Netzwerk-Pfad ein, zu Ihrer
+   Audiodatei
+   *****************************
+   Mit Enter bestaetigen
+   _____________________________
+EOF
+
+						echo -n "   Eingabe: " ; read APFAD
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]************************
+   Unter welchen Namen wollen
+   Sie auf den Audiofavorit
+   zugreifen?
+   *****************************
+   Mit Enter bestaetigen
+   _____________________________
+EOF
+
+						echo -n "   Eingabe: " ; read APFAD2
+
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]***********************
+   Wollen Sie folgenden Audio-
+   favorit
+   $AFAVORITA $APFAD
+   unter dem Namen
+   $APFAD2
+   speichern?
+   ----------------------------
+   Taste 1 -> Ja
+   Taste 2 -> Nein
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+				
+						echo -n "   Eingabe: " ; read AFAVORITAS
+
+						if [ $AFAVORITAS = 1 ]
+
+						then
+
+						if [ -d voc-files ]; then
+							echo ""
+						else
+							mkdir voc-files
+						fi
+
+						echo "$APFAD2;$AFAVORITA $APFAD" >> voc-files/voc-audiofavoriten.dat
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   $AFAVORITA $APFAD
+   wurde als Audiofavorit 
+   unter dem Namen
+   $APFAD2
+   gespeichert :)
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+						else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   --[!]------------------------
+   Das Speichern wurde 
+   abgebrochen
+   -----------------------------
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+						fi
+
+					elif [ $AFAVORITM = 2 ]
+
+					then
+
+						AFAVORITB=1
+				
+						while [ $AFAVORITB = 1 ]
+
+						do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]***********************
+   Bitte geben Sie den Audio-
+   favorit ein, der geloescht 
+   werden soll
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+						echo -n "   Eingabe: " ; read AFAVORITC
+
+						if [ -d voc-files ]; then
+							echo ""
+						else
+							mkdir voc-files
+						fi
+						grep $AFAVORITC voc-files/voc-audiofavoriten.dat
+
+						if [ $? = 0 ]
+
+						then
+
+echo -en "\033[H\033[2J"
+cat << EOF
+   **[?]***************************
+   Sollen folgende Audiofavoriten
+   geloescht werden?
+EOF
+						ANZW4=($( grep $AFAVORITC voc-files/voc-audiofavoriten.dat ))
+cat << EOF
+   $ANZW4
+   --------------------------------
+   Taste 1 -> A-Favoriten loeschen
+   Taste 2 -> Loeschen abbrechen
+   ********************************
+   Mit Enter bestaetigen
+   ________________________________
+EOF
+						echo -n "   Eingabe: " ; read AFAVORITD
+
+							if [ $AFAVORITD = 1 ]
+
+							then
+
+					if [ -d voc-files ]; then
+						echo ""
+					else
+						mkdir voc-files
+					fi
+
+					sed /$AFAVORITC/d voc-files/voc-audiofavoriten.dat > voc-files/$VOCBENUTZER.aud
+
+					mv voc-files/$VOCBENUTZER.aud voc-files/voc-audiofavoriten.dat
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]**********************
+   Die Audiofavoriten wurden aus 
+   der Audio-Favoritendatei 
+   entfernt :)
+   ******************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+							else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   --[!]------------------------
+   Der Loeschvorgang wurde
+   abgebrochen
+   -----------------------------
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+							fi
+
+						else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   --[!]-------------------------
+   Audiofavorit(en) nicht
+   in der Audiofavoritendatei 
+   enthalten :(
+   ------------------------------
+   Zum Fortfahren Enter druecken	
+EOF
+
+read
+
+						fi
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]***********************
+   Einen weiteren Audio-
+   favoriten loeschen?
+   ----------------------------
+   Taste 1 -> Ja
+   Taste 2 -> Nein
+   ****************************
+   Mit Enter bestaetigen
+   ____________________________
+EOF
+						echo -n "   Eingabe: " ; read AFAVORITB
+
+						done
+
+					
+					elif [ $AFAVORITM = 3 ]
+
+					then
+
+					echo ""					
+
+					fi
+
+
+				elif [ $OEINGABE = 0 ]
+				
+				then
+				
+				KEINGABE4=0
+				
+				fi
+
+				done
+
+				base $1
+
+				;;
+
+#------------------------------------------------------
+
+				8 )
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   ***[VOKABELDATEI WECHSELN]***
+    1 -> Vokabeldatei oeffnen
+    2 -> Favorit oeffnen
+    3 -> Hauptmenue
+   *****************************
+    Mit Enter bestaetigen
+   _____________________________
+EOF
+
+			echo -n "   Eingabe: ";read VOCWECHSELA
+
+			until [ $VOCWECHSELA -lt 4 ]
+
+			do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]***********************
+    Ungueltige Eingabe! Zum
+    Wiederholen der Eingabe
+    die Enter-Taste druecken
+   ****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   ***[VOKABELDATEI WECHSELN]***
+    1 -> Vokabeldatei oeffnen
+    2 -> Favorit oeffnen
+    3 -> Hauptmenue
+   *****************************
+    Mit Enter bestaetigen
+   _____________________________
+EOF
+
+			echo -n "   Eingabe: ";read VOCWECHSELA
+
+			done
+
+			
+			if [ $VOCWECHSELA = 1 ]
+
+			then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]************************
+   Geben Sie die Vokabeldatei
+   inklusive Pfad ein, die Sie
+   oeffnen wollen
+   *****************************
+   Mit Enter bestaetigen
+   _____________________________
+EOF
+
+				echo -n "   Eingabe: " ; read OEFFNENB
+
+				VOC=($( cat $OEFFNENB | tr '\n' ';' ))
+
+				#ANZAHL=${#VOC[*]}
+				ERGEBNIS=`cat $OEFFNENB | sed 's/;/ /g' | wc -w`
+				ERGEBNISX=$(($ERGEBNIS-4))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Die Vokabeldatei enthaelt
+   folgende Sprachen:
+
+   ${VOC[0]} - ${VOC[2]}
+
+   Anzahl der Woerter: $ERGEBNISX
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+				base $OEFFNENB			
+
+			elif [ $VOCWECHSELA = 2 ]
+
+			then
+
+				if [ -d voc-files ]; then
+					echo ""
+				else
+					mkdir voc-files
+				fi
+
+				FAVORITE=($( cat voc-files/voc-favoriten.dat | tr '\n' ';' ))
+	
+				FAVORITZAHL=0
+				FAVORITTASTE=1
+
+				if [ ${#FAVORITE[*]} -gt "0" ]
+
+then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Waehlen Sie einen Favoriten
+   aus:
+
+EOF
+
+		while [ $FAVORITZAHL -lt ${#FAVORITE[*]} ]
+
+        	do
+
+				echo "   Taste $FAVORITTASTE -> ${FAVORITE[$FAVORITZAHL]}"
+
+				FAVORITZAHL=$(($FAVORITZAHL+1))
+
+				FAVORITTASTE=$(($FAVORITTASTE+1))
+
+		done
+
+cat << EOF
+   *****************************
+   Mit Enter bestaetigen
+   _____________________________
+EOF
+
+				echo -n "   Eingabe: " ; read FAVORITF
+		
+				until [ $FAVORITF -lt $FAVORITTASTE ]
+
+				do
+
+				if [ -d voc-files ]; then
+					echo ""
+				else
+					mkdir voc-files
+				fi
+
+				FAVORITE=($( cat voc-files/voc-favoriten.dat | tr '\n' ';' ))
+	
+				FAVORITZAHL=0
+				FAVORITTASTE=1
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]***********************
+    Ungueltige Eingabe! Zum
+    Wiederholen der Eingabe
+    die Enter-Taste druecken
+   ****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Waehlen Sie einen Favoriten
+   aus:
+
+EOF
+
+		while [ $FAVORITZAHL -lt ${#FAVORITE[*]} ]
+
+        	do
+
+				echo "   Taste $FAVORITTASTE -> ${FAVORITE[$FAVORITZAHL]}"
+
+				FAVORITZAHL=$(($FAVORITZAHL+1))
+
+				FAVORITTASTE=$(($FAVORITTASTE+1))
+
+		done
+
+cat << EOF
+   *****************************
+   Mit Enter bestaetigen
+   _____________________________
+EOF
+
+				echo -n "   Eingabe: " ; read FAVORITF
+
+				done
+
+				FAVORITF=$(($FAVORITF-1))
+
+				FAVORITG=${FAVORITE[$FAVORITF]}
+
+				VOC=($( cat $FAVORITG | tr '\n' ';' ))
+
+				#ANZAHL=${#VOC[*]}
+				ERGEBNIS=`cat $FAVORITG | sed 's/;/ /g' | wc -w`
+				ERGEBNISX=$(($ERGEBNIS-4))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Die Vokabeldatei enthaelt
+   folgende Sprachen:
+
+   ${VOC[0]} - ${VOC[2]}
+
+   Anzahl der Woerter: $ERGEBNISX
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+			base $FAVORITG
+
+else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]************************
+   Es sind keine Favoriten in
+   der Favoritendatei vor-
+   handen :(
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+base $1
+
+fi
+
+			elif [ $VOCWECHSELA = 3 ]
+
+			then
+
+			base $1
+
+			fi
+
+
+				;;
+
+#------------------------------------------------------
+
+				9 )
+
+		if [ -d voc-files ]; then
+			echo ""
+		else
+			mkdir voc-files
+		fi
+
+		BENUTZERE=($( cat voc-files/voc-benutzer.dat | tr '\n' ';' ))
+	
+		BENUTZERZAHL=0
+		BENUTZERTASTE=1
+
+		if [ ${#BENUTZERE[*]} -lt 1 ]
+
+		then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]************************
+   Es sind keine Benutzer in
+   der Benutzerdatenbank vor-
+   handen :(
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+		base $1
+
+		else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Waehlen Sie einen Benutzer
+   aus:
+
+EOF
+
+		while [ $BENUTZERZAHL -lt ${#BENUTZERE[*]} ]
+
+        	do
+
+				echo "   Taste $BENUTZERTASTE -> ${BENUTZERE[$BENUTZERZAHL]}"
+
+				BENUTZERZAHL=$(($BENUTZERZAHL+1))
+
+				BENUTZERTASTE=$(($BENUTZERTASTE+1))
+
+		done
+
+cat << EOF
+   *****************************
+   Mit Enter bestaetigen
+   _____________________________
+EOF
+
+				echo -n "   Eingabe: " ; read BENUTZERF
+		
+				until [ $BENUTZERF -lt $BENUTZERTASTE ]
+
+				do
+
+				if [ -d voc-files ]; then
+					echo ""
+				else
+					mkdir voc-files
+				fi
+
+				BENUTZERE=($( cat voc-files/voc-benutzer.dat | tr '\n' ';' ))
+	
+				BENUTZERZAHL=0
+				BENUTZERTASTE=1
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]***********************
+    Ungueltige Eingabe! Zum
+    Wiederholen der Eingabe
+    die Enter-Taste druecken
+   ****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Waehlen Sie einen Benutzer
+   aus:
+
+EOF
+
+		while [ $BENUTZERZAHL -lt ${#BENUTZERE[*]} ]
+
+        	do
+
+				echo "   Taste $BENUTZERTASTE -> ${BENUTZERE[$BENUTZERZAHL]}"
+
+				BENUTZERZAHL=$(($BENUTZERZAHL+1))
+
+				BENUTZERTASTE=$(($BENUTZERTASTE+1))
+
+		done
+
+cat << EOF
+   *****************************
+   Mit Enter bestaetigen
+   _____________________________
+EOF
+
+				echo -n "   Eingabe: " ; read BENUTZERF
+
+				done
+
+				BENUTZERF=$(($BENUTZERF-1))
+
+				VOCBENUTZER=${BENUTZERE[$BENUTZERF]}
+
+				
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Sie sind jetzt als Benutzer
+
+   $VOCBENUTZER
+
+   angemeldet ;)
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+			base $1 $VOCBENUTZER
+
+		fi
+
+				;;
+
+#------------------------------------------------------
+
+				10 )
+
+		if [ -d voc-files ]; then
+			echo ""
+		else
+			mkdir voc-files
+		fi
+
+		AUDIOE=($( cat voc-files/voc-audiofavoriten.dat | tr '\n' ';' ))
+	
+		AUDIOZAHL=0
+		AUDIOTASTE=0
+		AUDIOZAEHLER=1
+
+		if [ ${#AUDIOE[*]} -lt 1 ]
+
+		then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]************************
+   Es sind keine Audiofavoriten
+   vorhanden :(
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+		base $1
+
+		else
+
+		
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Waehlen Sie einen Audio-
+   favoriten aus:
+
+EOF
+
+		while [ $AUDIOZAHL -lt ${#AUDIOE[*]} ]
+
+        	do
+
+				echo "   Taste $AUDIOTASTE -> ${AUDIOE[$AUDIOZAHL]}"
+
+				AUDIOZAHL=$(($AUDIOZAHL+2))
+
+				echo "$AUDIOTASTE;$AUDIOZAEHLER" >> voc-files/$VOCBENUTZER.audz
+
+				AUDIOTASTE=$(($AUDIOTASTE+1))
+
+				AUDIOZAEHLER=$(($AUDIOZAEHLER+2))
+
+		done
+
+cat << EOF
+   *****************************
+   Mit Enter bestaetigen
+   _____________________________
+EOF
+
+				echo -n "   Eingabe: " ; read AUDIOF
+		
+				until [ $AUDIOF -lt $AUDIOTASTE ]
+
+				do
+
+				if [ -d voc-files ]; then
+					echo ""
+				else
+					mkdir voc-files
+				fi
+
+				AUDIOE=($( cat voc-files/voc-audiofavoriten.dat | tr '\n' ';' ))
+	
+				AUDIOZAHL=0
+				AUDIOTASTE=0
+				AUDIOZAEHLER=1
+
+				rm voc-files/$VOCBENUTZER.audz
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]***********************
+    Ungueltige Eingabe! Zum
+    Wiederholen der Eingabe
+    die Enter-Taste druecken
+   ****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Waehlen Sie einen Audio-
+   favoriten aus:
+
+EOF
+
+		while [ $AUDIOZAHL -lt ${#AUDIOE[*]} ]
+
+        	do
+
+				echo "   Taste $AUDIOTASTE -> ${AUDIOE[$AUDIOZAHL]}"
+
+				AUDIOZAHL=$(($AUDIOZAHL+2))
+
+				if [ -d voc-files ]; then
+					echo ""
+				else
+					mkdir voc-files
+				fi
+
+				echo "$AUDIOTASTE;$AUDIOZAEHLER" >> voc-files/$VOCBENUTZER.audz
+
+				AUDIOTASTE=$(($AUDIOTASTE+1))
+
+				AUDIOZAEHLER=$(($AUDIOZAEHLER+2))
+
+		done
+
+cat << EOF
+   *****************************
+   Mit Enter bestaetigen
+   _____________________________
+EOF
+
+				echo -n "   Eingabe: " ; read AUDIOF
+
+				done
+
+				if [ -d voc-files ]; then
+					echo ""
+				else
+					mkdir voc-files
+				fi
+
+				rm voc-files/audiobefehl 2> /dev/null
+
+				AUDIOGREP=($( grep $AUDIOF\; voc-files/$VOCBENUTZER.audz | cut -d \; -f 2 ))
+
+				echo ${AUDIOE[$AUDIOGREP]} >> voc-files/audiobefehl
+
+				chmod 755 voc-files/audiobefehl
+
+				rm voc-files/$VOCBENUTZER.audz
+
+				./voc-files/audiobefehl > /dev/null 2>&1 &
+
+				
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   ${AUDIOE[$AUDIOGREP]}
+
+   wird hoffentlich gespielt
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+			base $1
+
+		fi
+
+				;;
+
+#------------------------------------------------------
+
+
+				0 )
+
+ENDE_STD=`date +%H`
+ENDE_MIN=`date +%M`
+ANFANG_MIN_DEZ=$ANFANG_MIN/6*10
+ENDE_MIN_DEZ=$ENDE_MIN/6*10
+ANFANG_ZEIT="$ANFANG_STD.$ANFANG_MIN_DEZ"
+ENDE_ZEIT="$ENDE_STD.$ENDE_MIN_DEZ"
+
+if [ $ENDE_STD -gt $ANFANG_STD ]
+
+	then
+
+		if [ $ENDE_STD -eq $ANFANG_STD ]
+
+		then
+
+			ERGEBNIS1=`echo $ENDE_ZEIT $ANFANG_ZEIT | awk '{printf( "%2.1f\n", ($1-$2)-24)}'`
+
+		else
+
+			ERGEBNIS1=`echo $ENDE_ZEIT $ANFANG_ZEIT | awk '{printf( "%2.1f\n", $1-$2)}'`
+
+		fi
+
+	else	
+
+		if [ $ENDE_STD -eq $ANFANG_STD ]
+
+		then
+	
+			ERGEBNIS1=`echo $ENDE_ZEIT $ANFANG_ZEIT | awk '{printf( "%2.1f\n", $1-$2)}'`
+
+		else	
+
+			ERGEBNIS1=`echo $ENDE_ZEIT $ANFANG_ZEIT | awk '{printf( "%2.1f\n", ($1-$2)+24)}'`
+
+		fi
+
+	fi
+
+ERGEBNIS2=`echo $ERGEBNIS1 | sed 's/\\./\\,/g'`
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]****************************
+
+   Sie haben $ERGEBNIS2 Stunden 
+   mit Voc gearbeitet
+
+   Voc im Internet:
+
+   http://voc.homeunix.net
+   http://voc.schulen-saar.de
+   http://www.supertuxkart.de/voc.html
+   ************************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+exit
+
+				;;
+
+#------------------------------------------------------
+	
+			esac
+
+			}
+
+STAT="OFF"
+RESULT="Results.log"
+RICHTIG=0
+FALSCH=0
+ZAHL=2
+IFS=";"
+typeset -i ANFANG_MIN_DEZ
+typeset -i ENDE_MIN_DEZ
+ANFANG_STD=`date +%H`
+ANFANG_MIN=`date +%M`
+
+if [ $# -lt 1 ]
+then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[Willkommen]*************
+    bei Voc 1.3.5
+    Der Vokabeltrainer
+   ---------------------------
+    1 -> Vokabeldatei anlegen
+    2 -> Vokabeldatei oeffnen
+    3 -> Favorit oeffnen
+    4 -> Benutzer waehlen
+    5 -> Voc beenden
+   ***************************
+    Mit Enter bestaetigen
+   ___________________________
+EOF
+
+echo -n "   Eingabe: ";read ANLEGEN
+
+until [ $ANLEGEN -lt 6 ]
+
+	do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]***********************
+    Ungueltige Eingabe! Zum
+    Wiederholen der Eingabe
+    die Enter-Taste druecken
+   ****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[Willkommen]*************
+    bei Voc 1.3.5
+    Der Vokabeltrainer
+   ---------------------------
+    1 -> Vokabeldatei anlegen
+    2 -> Vokabeldatei oeffnen
+    3 -> Favorit oeffnen
+    4 -> Benutzer waehlen
+    5 -> Voc beenden
+   ***************************
+    Mit Enter bestaetigen
+   ___________________________
+EOF
+
+echo -n "   Eingabe: ";read ANLEGEN
+
+	done
+
+	if [ $ANLEGEN = 1 ]
+
+	then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]*******************
+   Geben Sie den Namen der
+   neuen Vokabeldatei
+   inklusive Pfad ein
+   ************************
+   Mit Enter bestaetigen
+   ________________________
+EOF
+
+	echo -n "   Eingabe: ";read NEUEDATEI
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]*******************
+   Geben Sie die 1.Sprache
+   ein
+   ************************
+   Mit Enter bestaetigen
+   ________________________
+EOF
+
+	echo -n "   Eingabe: ";read SPR1
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]*******************
+   Geben Sie die 2.Sprache
+   ein
+   ************************
+   Mit Enter bestaetigen
+   ________________________
+EOF
+
+	echo -n "   Eingabe: ";read SPR2
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[Zusammenfassung]***********
+   Dateiname: $NEUEDATEI.vvf
+   1.Sprache: $SPR1
+   2.Sprache: $SPR2
+   ******************************
+   Neue Datei anlegen?
+   ------------------------------
+   Taste 1 -> Ja
+   Taste 2 -> Nein
+   ******************************
+   Mit Enter bestaetigen
+   ______________________________
+EOF
+	
+	echo -n "   Eingabe: ";read BEST
+
+		if [ $BEST = 1 ]
+
+		then
+
+		touch $NEUEDATEI.vvf
+		echo "$SPR1;"$SPR1"2;$SPR2;"$SPR2"2" > $NEUEDATEI.vvf
+
+echo -en "\033[H\033[2J"
+		
+cat << EOF
+   **[INFO]**********************
+   Neue Datei $NEUEDATEI.vvf
+   mit den Sprachen
+   $SPR1 und $SPR2
+   wurde angelegt :)
+   ******************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+vokabelneu $NEUEDATEI.vvf
+
+base $NEUEDATEI.vvf
+
+		else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   --[!]------------------------
+   Vokabeldatei wurde
+   nicht erstellt :(
+   -----------------------------
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+		fi
+
+	elif [ $ANLEGEN = 2 ]
+
+	then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]************************
+   Geben Sie die Vokabeldatei
+   inklusive Pfad ein, die Sie
+   oeffnen wollen
+   *****************************
+   Mit Enter bestaetigen
+   _____________________________
+EOF
+
+	echo -n "   Eingabe: " ; read OEFFNENA
+
+VOC=($( cat $OEFFNENA | tr '\n' ';' ))
+
+#ANZAHL=${#VOC[*]}
+ERGEBNIS=`cat $OEFFNENA | sed 's/;/ /g' | wc -w`
+ERGEBNISX=$(($ERGEBNIS-4))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Die Vokabeldatei enthaelt
+   folgende Sprachen:
+
+   ${VOC[0]} - ${VOC[2]}
+
+   Anzahl der Woerter: $ERGEBNISX
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+base $OEFFNENA
+
+	elif [ $ANLEGEN = 3 ]
+
+	then
+
+	if [ -d voc-files ]; then
+		echo ""
+	else
+		mkdir voc-files
+	fi
+
+	FAVORITE=($( cat voc-files/voc-favoriten.dat | tr '\n' ';' ))
+	
+	FAVORITZAHL=0
+	FAVORITTASTE=1
+
+if [ ${#FAVORITE[*]} -gt "0" ]
+
+then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Waehlen Sie einen Favoriten
+   aus:
+
+EOF
+
+		while [ $FAVORITZAHL -lt ${#FAVORITE[*]} ]
+
+        	do
+
+				echo "   Taste $FAVORITTASTE -> ${FAVORITE[$FAVORITZAHL]}"
+
+				FAVORITZAHL=$(($FAVORITZAHL+1))
+
+				FAVORITTASTE=$(($FAVORITTASTE+1))
+
+		done
+
+cat << EOF
+   *****************************
+   Mit Enter bestaetigen
+   _____________________________
+EOF
+
+				echo -n "   Eingabe: " ; read FAVORITF
+		
+				until [ $FAVORITF -lt $FAVORITTASTE ]
+
+				do
+
+				if [ -d voc-files ]; then
+					echo ""
+				else
+					mkdir voc-files
+				fi
+
+				FAVORITE=($( cat voc-files/voc-favoriten.dat | tr '\n' ';' ))
+	
+				FAVORITZAHL=0
+				FAVORITTASTE=1
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]***********************
+    Ungueltige Eingabe! Zum
+    Wiederholen der Eingabe
+    die Enter-Taste druecken
+   ****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Waehlen Sie einen Favoriten
+   aus:
+
+EOF
+
+		while [ $FAVORITZAHL -lt ${#FAVORITE[*]} ]
+
+        	do
+
+				echo "   Taste $FAVORITTASTE -> ${FAVORITE[$FAVORITZAHL]}"
+
+				FAVORITZAHL=$(($FAVORITZAHL+1))
+
+				FAVORITTASTE=$(($FAVORITTASTE+1))
+
+		done
+
+cat << EOF
+   *****************************
+   Mit Enter bestaetigen
+   _____________________________
+EOF
+
+				echo -n "   Eingabe: " ; read FAVORITF
+
+				done
+
+				FAVORITF=$(($FAVORITF-1))
+
+				FAVORITG=${FAVORITE[$FAVORITF]}
+
+				VOC=($( cat $FAVORITG | tr '\n' ';' ))
+
+				#ANZAHL=${#VOC[*]}
+				ERGEBNIS=`cat $FAVORITG | sed 's/;/ /g' | wc -w`
+				ERGEBNISX=$(($ERGEBNIS-4))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Die Vokabeldatei enthaelt
+   folgende Sprachen:
+
+   ${VOC[0]} - ${VOC[2]}
+
+   Anzahl der Woerter: $ERGEBNISX
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+			base $FAVORITG
+
+else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]************************
+   Es sind keine Favoriten in
+   der Favoritendatei vor-
+   handen :(
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+exit
+
+fi
+
+	elif [ $ANLEGEN = 4 ]
+
+	then
+
+		if [ -d voc-files ]; then
+			echo ""
+		else
+			mkdir voc-files
+		fi
+
+		BENUTZERE=($( cat voc-files/voc-benutzer.dat | tr '\n' ';' ))
+	
+		BENUTZERZAHL=0
+		BENUTZERTASTE=1
+
+if [ ${#BENUTZERE[*]} -gt "0" ]
+
+then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Waehlen Sie einen Benutzer
+   aus:
+
+EOF
+
+		while [ $BENUTZERZAHL -lt ${#BENUTZERE[*]} ]
+
+        	do
+
+				echo "   Taste $BENUTZERTASTE -> ${BENUTZERE[$BENUTZERZAHL]}"
+
+				BENUTZERZAHL=$(($BENUTZERZAHL+1))
+
+				BENUTZERTASTE=$(($BENUTZERTASTE+1))
+
+		done
+
+cat << EOF
+   *****************************
+   Mit Enter bestaetigen
+   _____________________________
+EOF
+
+				echo -n "   Eingabe: " ; read BENUTZERF
+		
+				until [ $BENUTZERF -lt $BENUTZERTASTE ]
+
+				do
+
+				if [ -d voc-files ]; then
+					echo ""
+				else
+					mkdir voc-files
+				fi
+
+				BENUTZERE=($( cat voc-files/voc-benutzer.dat | tr '\n' ';' ))
+	
+				BENUTZERZAHL=0
+				BENUTZERTASTE=1
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]***********************
+    Ungueltige Eingabe! Zum
+    Wiederholen der Eingabe
+    die Enter-Taste druecken
+   ****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Waehlen Sie einen Benutzer
+   aus:
+
+EOF
+
+		while [ $BENUTZERZAHL -lt ${#BENUTZERE[*]} ]
+
+        	do
+
+				echo "   Taste $BENUTZERTASTE -> ${BENUTZERE[$BENUTZERZAHL]}"
+
+				BENUTZERZAHL=$(($BENUTZERZAHL+1))
+
+				BENUTZERTASTE=$(($BENUTZERTASTE+1))
+
+		done
+
+cat << EOF
+   *****************************
+   Mit Enter bestaetigen
+   _____________________________
+EOF
+
+				echo -n "   Eingabe: " ; read BENUTZERF
+
+				done
+
+				BENUTZERF=$(($BENUTZERF-1))
+
+				VOCBENUTZER=${BENUTZERE[$BENUTZERF]}
+
+				
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Sie sind jetzt als Benutzer
+
+   $VOCBENUTZER
+
+   angemeldet ;)
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   *[VOKABELDATEI AUSWAEHLEN]*
+    1 -> Vokabeldatei anlegen
+    2 -> Vokabeldatei oeffnen
+    3 -> Favorit oeffnen
+   ***************************
+    Mit Enter bestaetigen
+   ___________________________
+EOF
+
+echo -n "   Eingabe: ";read ANLEGEN2
+
+until [ $ANLEGEN2 -lt 4 ]
+
+	do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]***********************
+    Ungueltige Eingabe! Zum
+    Wiederholen der Eingabe
+    die Enter-Taste druecken
+   ****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   *[VOKABELDATEI AUSWAEHLEN]*
+    1 -> Vokabeldatei anlegen
+    2 -> Vokabeldatei oeffnen
+    3 -> Favorit oeffnen
+   ***************************
+    Mit Enter bestaetigen
+   ___________________________
+EOF
+
+echo -n "   Eingabe: ";read ANLEGEN2
+
+	done
+
+	if [ $ANLEGEN2 = 1 ]
+
+	then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]*******************
+   Geben Sie den Namen der
+   neuen Vokabeldatei
+   inklusive Pfad ein
+   ************************
+   Mit Enter bestaetigen
+   ________________________
+EOF
+
+	echo -n "   Eingabe: ";read NEUEDATEI
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]*******************
+   Geben Sie die 1.Sprache
+   ein
+   ************************
+   Mit Enter bestaetigen
+   ________________________
+EOF
+
+	echo -n "   Eingabe: ";read SPR1
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]*******************
+   Geben Sie die 2.Sprache
+   ein
+   ************************
+   Mit Enter bestaetigen
+   ________________________
+EOF
+
+	echo -n "   Eingabe: ";read SPR2
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[Zusammenfassung]***********
+   Dateiname: $NEUEDATEI.vvf
+   1.Sprache: $SPR1
+   2.Sprache: $SPR2
+   ******************************
+   Neue Datei anlegen?
+   ------------------------------
+   Taste 1 -> Ja
+   Taste 2 -> Nein
+   ******************************
+   Mit Enter bestaetigen
+   ______________________________
+EOF
+	
+	echo -n "   Eingabe: ";read BEST
+
+		if [ $BEST = 1 ]
+
+		then
+
+		touch $NEUEDATEI.vvf
+		echo "$SPR1;"$SPR1"2;$SPR2;"$SPR2"2" > $NEUEDATEI.vvf
+
+echo -en "\033[H\033[2J"
+		
+cat << EOF
+   **[INFO]**********************
+   Neue Datei $NEUEDATEI.vvf
+   mit den Sprachen
+   $SPR1 und $SPR2
+   wurde angelegt :)
+   ******************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+vokabelneu $NEUEDATEI.vvf
+
+base $NEUEDATEI.vvf $VOCBENUTZER
+
+		else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   --[!]------------------------
+   Vokabeldatei wurde
+   nicht erstellt :(
+   -----------------------------
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+exit
+
+		fi
+
+	elif [ $ANLEGEN2 = 2 ]
+
+	then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[?]************************
+   Geben Sie die Vokabeldatei
+   inklusive Pfad ein, die Sie
+   oeffnen wollen
+   *****************************
+   Mit Enter bestaetigen
+   _____________________________
+EOF
+
+	echo -n "   Eingabe: " ; read OEFFNENA
+
+VOC=($( cat $OEFFNENA | tr '\n' ';' ))
+
+#ANZAHL=${#VOC[*]}
+ERGEBNIS=`cat $OEFFNENA | sed 's/;/ /g' | wc -w`
+ERGEBNISX=$(($ERGEBNIS-4))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Die Vokabeldatei enthaelt
+   folgende Sprachen:
+
+   ${VOC[0]} - ${VOC[2]}
+
+   Anzahl der Woerter: $ERGEBNISX
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+base $OEFFNENA $VOCBENUTZER
+
+	elif [ $ANLEGEN2 = 3 ]
+
+	then
+
+	if [ -d voc-files ]; then
+		echo ""
+	else
+		mkdir voc-files
+	fi
+
+	FAVORITE=($( cat voc-files/voc-favoriten.dat | tr '\n' ';' ))
+	
+	FAVORITZAHL=0
+	FAVORITTASTE=1
+
+if [ ${#FAVORITE[*]} -gt "0" ]
+
+then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Waehlen Sie einen Favoriten
+   aus:
+
+EOF
+
+		while [ $FAVORITZAHL -lt ${#FAVORITE[*]} ]
+
+        	do
+
+				echo "   Taste $FAVORITTASTE -> ${FAVORITE[$FAVORITZAHL]}"
+
+				FAVORITZAHL=$(($FAVORITZAHL+1))
+
+				FAVORITTASTE=$(($FAVORITTASTE+1))
+
+		done
+
+cat << EOF
+   *****************************
+   Mit Enter bestaetigen
+   _____________________________
+EOF
+
+				echo -n "   Eingabe: " ; read FAVORITF
+		
+				until [ $FAVORITF -lt $FAVORITTASTE ]
+
+				do
+
+				if [ -d voc-files ]; then
+					echo ""
+				else
+					mkdir voc-files
+				fi
+
+				FAVORITE=($( cat voc-files/voc-favoriten.dat | tr '\n' ';' ))
+	
+				FAVORITZAHL=0
+				FAVORITTASTE=1
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]***********************
+    Ungueltige Eingabe! Zum
+    Wiederholen der Eingabe
+    die Enter-Taste druecken
+   ****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Waehlen Sie einen Favoriten
+   aus:
+
+EOF
+
+		while [ $FAVORITZAHL -lt ${#FAVORITE[*]} ]
+
+        	do
+
+				echo "   Taste $FAVORITTASTE -> ${FAVORITE[$FAVORITZAHL]}"
+
+				FAVORITZAHL=$(($FAVORITZAHL+1))
+
+				FAVORITTASTE=$(($FAVORITTASTE+1))
+
+		done
+
+cat << EOF
+   *****************************
+   Mit Enter bestaetigen
+   _____________________________
+EOF
+
+				echo -n "   Eingabe: " ; read FAVORITF
+
+				done
+
+				FAVORITF=$(($FAVORITF-1))
+
+				FAVORITG=${FAVORITE[$FAVORITF]}
+
+				VOC=($( cat $FAVORITG | tr '\n' ';' ))
+
+				#ANZAHL=${#VOC[*]}
+				ERGEBNIS=`cat $FAVORITG | sed 's/;/ /g' | wc -w`
+				ERGEBNISX=$(($ERGEBNIS-4))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[INFO]*********************
+   Die Vokabeldatei enthaelt
+   folgende Sprachen:
+
+   ${VOC[0]} - ${VOC[2]}
+
+   Anzahl der Woerter: $ERGEBNISX
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+			base $FAVORITG $VOCBENUTZER
+
+else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]************************
+   Es sind keine Favoriten in
+   der Favoritendatei vor-
+   handen :(
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+exit
+
+fi
+
+fi
+
+else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+   **[!]************************
+   Es sind keine Benutzer in
+   der Benutzerdatenbank vor-
+   handen :(
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+exit
+
+fi
+
+base $1
+
+	elif [ $ANLEGEN = 5 ]
+
+	then
+
+	echo -en "\033[H\033[2J"
+
+	exit
+
+	fi
+
+else
+
+	if [ $1 = "--help" ]
+	then
+
+cat << EOF
+Aufruf:
+voc [OPTION]... [DATEI]...
+Abfragen von Vokabeln
+--help  diese Hilfe anzeigen
+  und beenden
+--version  Versionsinfo
+  anzeigen und beenden
+EOF
+
+	else
+
+    		if [ $1 = "--version" ]
+    		then
+
+cat << EOF
+voc 1.3.5 Der Vokabeltrainer
+Dieses Programm ist freie
+Software. Sie duerfen Kopien
+davon weitergeben gemaess
+der GNU General Public
+License <http://www.gnu.org/
+licenses/gpl.html>
+Es gibt KEINERLEI GARANTIE,
+so weit das Gesetz es
+erlaubt.
+Geschrieben von hoffi,
+26thmeusoc und Xeno74
+EOF
+    		else
+
+        	VOC=($( cat $1 | tr '\n' ';' ))
+
+echo -en "\033[H\033[2J"
+
+		#ANZAHL=${#VOC[*]}
+		ERGEBNIS=`cat $1 | sed 's/;/ /g' | wc -w`
+		ERGEBNISX=$(($ERGEBNIS-4))
+
+cat << EOF
+   **[INFO]*********************
+   Die Vokabeldatei enthaelt
+   folgende Sprachen:
+
+   ${VOC[0]} - ${VOC[2]}
+
+   Anzahl der Woerter: $ERGEBNISX
+   *****************************
+   Zum Fortfahren Enter druecken
+EOF
+
+read
+
+			base $1
+
+		fi
+	fi
+fi

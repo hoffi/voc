@@ -1,0 +1,3702 @@
+#!/bin/bash
+#
+#
+# Multiple Choice-Trainer fuer das Openmoko Linux auf dem Neo Freerunner.
+# Laeuft aber auch unter jedem anderen Unix (Linux, OS X, BSD usw.).
+#
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+#
+# Shellquiz mit Datendatei-Support.
+#
+# Beispiel fuer eine Datendatei:
+#
+# cat it-wissen:
+#
+# Frage;Frage2;Antwort;Antwort2
+# USB-Verbindung einrichten;;ifconfig usb0 192.168.0.200 netmask 255.255.255.0;route add 192.168.0.202 usb0
+# SSH-Verbindung aufbauen;;ssh root@192.168.0.202;
+# Ueber Hostnamen andere Rechner im Netzwerk ansprechen;;/etc/hosts --> <IP-Adresse> <Hostname>;
+# Wo wird der DNS-Server eingetragen;;/etc/resolv.conf;
+# Wo werden die Netzwerk-Schnittstellen konfiguriert;;/etc/network/interfaces;
+# Wie wird das Netzwerk neugestartet;;/etc/init.d/networking restart;
+# SFTP-Verbindung mit Konqueror;;sftp://root@192.168.0.111;
+# Wie wird eine Firewire-Netzwerk-Verbindung eingerichtet;;modprobe ieee1394, modprobe eth1394, ifconfig eth1 192.168.5.2 up;
+#
+# Aufruf des Skriptes:
+#
+# ./shellquiz it-wissen
+#
+
+multi1 ()
+
+{
+
+
+				PROZENT1=$((${#SHELLQUIZ[*]}-4))
+				PROZENT2=0
+				PROZENT3=5
+				# ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+				ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+				ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+				MULTI=$((${#SHELLQUIZ[*]}-3))
+				ZAHL=4
+					
+        			while [ $ZAHL -lt $MULTI ]
+
+        			do
+
+				BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "##"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+$ERG1 % $BALKEN
+Richtig: $RICHTIG Falsch: $FALSCH
+**[?]***************************************************************
+Frage:
+'${SHELLQUIZ[$ZAHL]}'?
+--------------------------------------------------------------------
+EOF
+
+					
+					ZAHL99=$((RANDOM % 4 + 1 ))
+
+					if [ $ZAHL99 = 1 ]
+					
+					then
+					
+					echo "${SHELLQUIZ[$ZAHL+10]};${SHELLQUIZ[$ZAHL+6]};${SHELLQUIZ[$ZAHL+2]};${SHELLQUIZ[$ZAHL+14]}" >> shellquiz_multi1.tmp
+					
+					elif [ $ZAHL99 = 2 ]
+					
+					then
+					
+					echo "${SHELLQUIZ[$ZAHL+6]};${SHELLQUIZ[$ZAHL+2]};${SHELLQUIZ[$ZAHL+10]};${SHELLQUIZ[$ZAHL+14]}" >> shellquiz_multi1.tmp
+					
+					elif [ $ZAHL99 = 3 ]
+					
+					then
+					
+					echo "${SHELLQUIZ[$ZAHL+14]};${SHELLQUIZ[$ZAHL+6]};${SHELLQUIZ[$ZAHL+10]};${SHELLQUIZ[$ZAHL+2]}" >> shellquiz_multi1.tmp
+					
+					elif [ $ZAHL99 = 4 ]
+					
+					then
+					
+					echo "${SHELLQUIZ[$ZAHL+2]};${SHELLQUIZ[$ZAHL+6]};${SHELLQUIZ[$ZAHL+10]};${SHELLQUIZ[$ZAHL+14]}" >> shellquiz_multi1.tmp
+					
+					fi 2> /dev/null
+										
+					
+					for i in 1 2 3 4; do
+					
+					if [ -z ${SHELLQUIZ[$ZAHL+2]} ]
+
+					then
+
+						rm shellquiz_multi1.tmp
+
+						echo "${SHELLQUIZ[$ZAHL+2]};${SHELLQUIZ[$ZAHL-6]};${SHELLQUIZ[$ZAHL-10]};${SHELLQUIZ[$ZAHL-14]}" >> shellquiz_multi1.tmp
+						
+					elif [ -z ${SHELLQUIZ[$ZAHL+6]} ]
+
+					then
+
+						rm shellquiz_multi1.tmp
+
+						echo "${SHELLQUIZ[$ZAHL-6]};${SHELLQUIZ[$ZAHL+2]};${SHELLQUIZ[$ZAHL-10]};${SHELLQUIZ[$ZAHL-14]}" >> shellquiz_multi1.tmp
+
+					elif [ -z ${SHELLQUIZ[$ZAHL+10]} ]
+
+					then
+
+						rm shellquiz_multi1.tmp
+
+						echo "${SHELLQUIZ[$ZAHL-10]};${SHELLQUIZ[$ZAHL-6]};${SHELLQUIZ[$ZAHL+2]};${SHELLQUIZ[$ZAHL-14]}" >> shellquiz_multi1.tmp
+
+					elif [ -z ${SHELLQUIZ[$ZAHL+14]} ]
+
+					then
+
+						rm shellquiz_multi1.tmp
+
+						echo "${SHELLQUIZ[$ZAHL-14]};${SHELLQUIZ[$ZAHL-6]};${SHELLQUIZ[$ZAHL-10]};${SHELLQUIZ[$ZAHL+2]}" >> shellquiz_multi1.tmp
+
+					fi 2> /dev/null
+
+					done
+
+					MULTI2=($( cat shellquiz_multi1.tmp | tr '\n' ';' ))
+										
+					MULTIZAHL=0
+
+					MULTIZAEHLER=1
+					
+					for i in 1 2 3 4; do
+					
+					echo "$MULTIZAEHLER -> ${MULTI2[$MULTIZAHL]}"
+
+					MULTIZAEHLER=$(($MULTIZAEHLER+1))
+					
+					MULTIZAHL=$(($MULTIZAHL+1))
+					
+					done
+
+
+
+cat << EOF
+********************************************************************
+EOF
+
+				echo -n "Eingabe: "; read ANSWER
+
+				while [ -z $ANSWER ]
+
+				do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[!]***********************
+Ungueltige Eingabe! Zum
+Wiederholen der Eingabe
+die Enter-Taste druecken
+****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+$ERG1 % $BALKEN
+Richtig: $RICHTIG Falsch: $FALSCH
+**[?]***************************************************************
+Frage:
+'${SHELLQUIZ[$ZAHL]}'?
+--------------------------------------------------------------------
+EOF
+
+
+					ZAHL99=$((RANDOM % 4 + 1 ))
+
+					if [ $ZAHL99 = 1 ]
+					
+					then
+					
+					echo "${SHELLQUIZ[$ZAHL+10]};${SHELLQUIZ[$ZAHL+6]};${SHELLQUIZ[$ZAHL+2]};${SHELLQUIZ[$ZAHL+14]}" >> shellquiz_multi1.tmp
+					
+					elif [ $ZAHL99 = 2 ]
+					
+					then
+					
+					echo "${SHELLQUIZ[$ZAHL+6]};${SHELLQUIZ[$ZAHL+2]};${SHELLQUIZ[$ZAHL+10]};${SHELLQUIZ[$ZAHL+14]}" >> shellquiz_multi1.tmp
+					
+					elif [ $ZAHL99 = 3 ]
+					
+					then
+					
+					echo "${SHELLQUIZ[$ZAHL+14]};${SHELLQUIZ[$ZAHL+6]};${SHELLQUIZ[$ZAHL+10]};${SHELLQUIZ[$ZAHL+2]}" >> shellquiz_multi1.tmp
+					
+					elif [ $ZAHL99 = 4 ]
+					
+					then
+					
+					echo "${SHELLQUIZ[$ZAHL+2]};${SHELLQUIZ[$ZAHL+6]};${SHELLQUIZ[$ZAHL+10]};${SHELLQUIZ[$ZAHL+14]}" >> shellquiz_multi1.tmp
+					
+					fi 2> /dev/null
+
+					for i in 1 2 3 4; do
+					
+					if [ -z ${SHELLQUIZ[$ZAHL+2]} ]
+
+					then
+
+						rm shellquiz_multi1.tmp
+
+						echo "${SHELLQUIZ[$ZAHL+2]};${SHELLQUIZ[$ZAHL-6]};${SHELLQUIZ[$ZAHL-10]};${SHELLQUIZ[$ZAHL-14]}" >> shellquiz_multi1.tmp
+						
+					elif [ -z ${SHELLQUIZ[$ZAHL+6]} ]
+
+					then
+
+						rm shellquiz_multi1.tmp
+
+						echo "${SHELLQUIZ[$ZAHL-6]};${SHELLQUIZ[$ZAHL+2]};${SHELLQUIZ[$ZAHL-10]};${SHELLQUIZ[$ZAHL-14]}" >> shellquiz_multi1.tmp
+
+					elif [ -z ${SHELLQUIZ[$ZAHL+10]} ]
+
+					then
+
+						rm shellquiz_multi1.tmp
+
+						echo "${SHELLQUIZ[$ZAHL-10]};${SHELLQUIZ[$ZAHL-6]};${SHELLQUIZ[$ZAHL+2]};${SHELLQUIZ[$ZAHL-14]}" >> shellquiz_multi1.tmp
+
+					elif [ -z ${SHELLQUIZ[$ZAHL+14]} ]
+
+					then
+
+						rm shellquiz_multi1.tmp
+
+						echo "${SHELLQUIZ[$ZAHL-14]};${SHELLQUIZ[$ZAHL-6]};${SHELLQUIZ[$ZAHL-10]};${SHELLQUIZ[$ZAHL+2]}" >> shellquiz_multi1.tmp
+
+					fi 2> /dev/null
+
+					done
+					
+										
+					MULTI2=($( cat shellquiz_multi1.tmp | tr '\n' ';' ))
+										
+					MULTIZAHL=0
+
+					MULTIZAEHLER=1
+					
+					for i in 1 2 3 4; do
+					
+					echo "$MULTIZAEHLER -> ${MULTI2[$MULTIZAHL]}"
+					
+					MULTIZAEHLER=$(($MULTIZAEHLER+1))
+
+					MULTIZAHL=$(($MULTIZAHL+1))
+					
+					done
+
+
+
+cat << EOF
+********************************************************************
+EOF
+
+				echo -n "Eingabe: "; read ANSWER
+
+
+				done
+
+				ANSWER=$(($ANSWER-1))
+
+				ANSWERMULTI1=${MULTI2[$ANSWER]}
+
+				rm shellquiz_multi1.tmp
+
+				ZAHL=$(($ZAHL+2))
+
+					if [ $ANSWERMULTI1 = ${SHELLQUIZ[$ZAHL]} ]
+        				then
+
+					PROZENT2=$(($PROZENT2+4))
+
+					#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+					ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+					ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+					BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "##"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+					RICHTIG=$(($RICHTIG+1))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+$ERG1 % $BALKEN
+Richtig: $RICHTIG Falsch: $FALSCH
+**[INFO]*************************************************************
+${SHELLQUIZ[$ZAHL]}
+${SHELLQUIZ[$ZAHL+1]}
+Richtig $SHELLQUIZBENUTZER :)
+*********************************************************************
+Zum Fortfahren Enter druecken
+
+EOF
+					ZAHL=$(($ZAHL+2))
+
+read
+
+					else
+
+						ZAHL=$(($ZAHL+1))
+
+						if [ $ANSWER = ${SHELLQUIZ[$ZAHL]} ]
+
+						then
+
+						PROZENT2=$(($PROZENT2+4))
+
+						#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+						ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+						ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+						BALKEN=$(
+
+						while [ $ERG2 -gt "0" ]
+
+						do
+
+							echo -n "##"
+
+							ERG2=$(($ERG2-1))
+
+						done
+
+						)
+
+						RICHTIG=$(($RICHTIG+1))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+$ERG1 % $BALKEN
+Richtig: $RICHTIG Falsch: $FALSCH
+**[INFO]*************************************************************
+${SHELLQUIZ[$ZAHL]} 
+${SHELLQUIZ[$ZAHL-1]}
+Richtig $SHELLQUIZBENUTZER :)
+*********************************************************************
+Zum Fortfahren Enter druecken
+
+EOF
+
+read
+
+						ZAHL=$(($ZAHL+1))
+
+
+						else					
+						
+						PROZENT2=$(($PROZENT2+4))
+
+						#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+						ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+						ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+						BALKEN=$(
+
+						while [ $ERG2 -gt "0" ]
+
+						do
+
+							echo -n "##"
+
+							ERG2=$(($ERG2-1))
+
+						done
+
+						)
+
+						FALSCH=$(($FALSCH+1))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+$ERG1 % $BALKEN
+Richtig: $RICHTIG Falsch: $FALSCH
+--[!]----------------------------------------------------------------
+Falsch :( Antwort(en):
+${SHELLQUIZ[$ZAHL]}
+${SHELLQUIZ[$ZAHL-1]}
+---------------------------------------------------------------------
+Zum Fortfahren Enter druecken
+
+EOF
+
+read
+				
+						ZAHL=$(($ZAHL+1))
+
+						fi
+
+					fi
+        			done
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[INFO]*********************
+ Auswertung:
+
+ Richtig: $RICHTIG
+ Falsch:  $FALSCH
+*****************************
+Zum Fortfahren Enter druecken
+
+EOF
+
+read
+				
+				if [ $STAT = ON ]
+
+				then
+
+				date >> $RESULT
+				echo "Datendatei: $1" >> $RESULT
+				echo " " >> $RESULT
+				echo "Richtig: $RICHTIG" >> $RESULT
+				echo "Falsch: $FALSCH" >> $RESULT
+				echo "Benutzer: $SHELLQUIZBENUTZER" >> $RESULT
+				echo " " >> $RESULT
+
+				else
+
+				echo " "
+
+
+				fi
+
+				
+				unset ZAHL
+				unset RICHTIG
+				unset FALSCH
+
+}
+
+multi2 ()
+
+{
+
+				ANZAHL2=${#SHELLQUIZ[*]}
+				ZAHL2=$(($ANZAHL2-1))
+				RICHTIG=0
+				FALSCH=0
+				PROZENT1=$((${#SHELLQUIZ[*]}-4))
+				PROZENT2=0
+				PROZENT3=5
+				#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+				ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+				ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+				while [ $ZAHL2 -gt "3" ]
+
+        			do
+
+				BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "##"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+				ZAHL2=$(($ZAHL2-1))
+				
+echo -en "\033[H\033[2J"
+
+cat << EOF
+$ERG1 % $BALKEN
+Richtig: $RICHTIG Falsch: $FALSCH
+**[?]***************************************************************
+Frage:
+'${SHELLQUIZ[$ZAHL2]}'?
+--------------------------------------------------------------------
+EOF
+
+					ZAHL100=$((RANDOM % 4 + 1 ))
+
+					if [ $ZAHL100 = 1 ]
+					
+					then
+
+						if [ -z ${SHELLQUIZ[$ZAHL2-14]} ]
+
+						then
+
+						echo "${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2+14]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "${SHELLQUIZ[$ZAHL2-10]};${SHELLQUIZ[$ZAHL2-6]};${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2-14]}" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+
+						if [ -z ${SHELLQUIZ[$ZAHL2-10]} ]
+
+						then
+
+						rm shellquiz_multi2.tmp
+
+						echo "${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2+14]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+				
+						if [ -z ${SHELLQUIZ[$ZAHL2-6]} ]
+
+						then
+
+						rm shellquiz_multi2.tmp
+
+						echo "${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2+14]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+
+						if [ -z ${SHELLQUIZ[$ZAHL2-2]} ]
+
+						then
+
+						rm shellquiz_multi2.tmp
+
+						echo "${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2+14]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+
+					elif [ $ZAHL100 = 2 ]
+					
+					then
+
+						if [ -z ${SHELLQUIZ[$ZAHL2-14]} ]
+
+						then
+
+						echo "${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2+14]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "${SHELLQUIZ[$ZAHL2-6]};${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2-10]};${SHELLQUIZ[$ZAHL2-14]}" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+
+						if [ -z ${SHELLQUIZ[$ZAHL2-10]} ]
+
+						then
+
+						rm shellquiz_multi2.tmp
+
+						echo "${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2+14]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+				
+						if [ -z ${SHELLQUIZ[$ZAHL2-6]} ]
+
+						then
+
+						rm shellquiz_multi2.tmp
+
+						echo "${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2+14]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+
+						if [ -z ${SHELLQUIZ[$ZAHL2-2]} ]
+
+						then
+
+						rm shellquiz_multi2.tmp
+
+						echo "${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2+14]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+
+					elif [ $ZAHL100 = 3 ]
+					
+					then
+
+						if [ -z ${SHELLQUIZ[$ZAHL2-14]} ]
+
+						then
+
+						echo "${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2+14]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "${SHELLQUIZ[$ZAHL2-14]};${SHELLQUIZ[$ZAHL2-6]};${SHELLQUIZ[$ZAHL2-10]};${SHELLQUIZ[$ZAHL2-2]}" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+
+						if [ -z ${SHELLQUIZ[$ZAHL2-10]} ]
+
+						then
+
+						rm shellquiz_multi2.tmp
+
+						echo "${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2+14]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+				
+						if [ -z ${SHELLQUIZ[$ZAHL2-6]} ]
+
+						then
+
+						rm shellquiz_multi2.tmp
+
+						echo "${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2+14]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+
+						if [ -z ${SHELLQUIZ[$ZAHL2-2]} ]
+
+						then
+
+						rm shellquiz_multi2.tmp
+
+						echo "${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2+14]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+					
+					elif [ $ZAHL100 = 4 ]
+					
+					then
+
+						if [ -z ${SHELLQUIZ[$ZAHL2-14]} ]
+
+						then
+
+						echo "${SHELLQUIZ[$ZAHL2+14]};${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2-2]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2-6]};${SHELLQUIZ[$ZAHL2-10]};${SHELLQUIZ[$ZAHL2-14]}" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+
+						if [ -z ${SHELLQUIZ[$ZAHL2-10]} ]
+
+						then
+
+						rm shellquiz_multi2.tmp
+
+						echo "${SHELLQUIZ[$ZAHL2+14]};${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2-2]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+				
+						if [ -z ${SHELLQUIZ[$ZAHL2-6]} ]
+
+						then
+
+						rm shellquiz_multi2.tmp
+
+						echo "${SHELLQUIZ[$ZAHL2+14]};${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2-2]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+
+						if [ -z ${SHELLQUIZ[$ZAHL2-2]} ]
+
+						then
+
+						rm shellquiz_multi2.tmp
+
+						echo "${SHELLQUIZ[$ZAHL2+14]};${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2-2]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+					fi
+
+				
+					MULTI3=($( cat shellquiz_multi2.tmp | tr '\n' ';' ))
+										
+					MULTIZAHL3=0
+
+					MULTIZAEHLER2=1
+					
+					for i in 1 2 3 4; do
+					
+					echo "$MULTIZAEHLER2 -> ${MULTI3[$MULTIZAHL3]}"
+					
+					MULTIZAEHLER2=$(($MULTIZAEHLER2+1))
+
+					MULTIZAHL3=$(($MULTIZAHL3+1))
+					
+					done
+
+
+
+cat << EOF
+********************************************************************
+EOF
+				echo -n "Eingabe: "; read ANSWER
+
+				while [ -z $ANSWER ]
+
+				do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[!]***********************
+Ungueltige Eingabe! Zum
+Wiederholen der Eingabe
+die Enter-Taste druecken
+****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+$ERG1 % $BALKEN
+Richtig: $RICHTIG Falsch: $FALSCH
+**[?]***************************************************************
+Frage:
+'${SHELLQUIZ[$ZAHL2]}'?
+--------------------------------------------------------------------
+EOF
+
+					ZAHL100=$((RANDOM % 4 + 1 ))
+
+					if [ $ZAHL100 = 1 ]
+					
+					then
+
+						if [ -z ${SHELLQUIZ[$ZAHL2-14]} ]
+
+						then
+
+						echo "${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2+14]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "${SHELLQUIZ[$ZAHL2-10]};${SHELLQUIZ[$ZAHL2-6]};${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2-14]}" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+
+						if [ -z ${SHELLQUIZ[$ZAHL2-10]} ]
+
+						then
+
+						rm shellquiz_multi2.tmp
+
+						echo "${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2+14]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+				
+						if [ -z ${SHELLQUIZ[$ZAHL2-6]} ]
+
+						then
+
+						rm shellquiz_multi2.tmp
+
+						echo "${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2+14]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+
+						if [ -z ${SHELLQUIZ[$ZAHL2-2]} ]
+
+						then
+
+						rm shellquiz_multi2.tmp
+
+						echo "${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2+14]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+
+					elif [ $ZAHL100 = 2 ]
+					
+					then
+
+						if [ -z ${SHELLQUIZ[$ZAHL2-14]} ]
+
+						then
+
+						echo "${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2+14]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "${SHELLQUIZ[$ZAHL2-6]};${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2-10]};${SHELLQUIZ[$ZAHL2-14]}" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+
+						if [ -z ${SHELLQUIZ[$ZAHL2-10]} ]
+
+						then
+
+						rm shellquiz_multi2.tmp
+
+						echo "${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2+14]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+				
+						if [ -z ${SHELLQUIZ[$ZAHL2-6]} ]
+
+						then
+
+						rm shellquiz_multi2.tmp
+
+						echo "${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2+14]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+
+						if [ -z ${SHELLQUIZ[$ZAHL2-2]} ]
+
+						then
+
+						rm shellquiz_multi2.tmp
+
+						echo "${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2+14]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+
+					elif [ $ZAHL100 = 3 ]
+					
+					then
+
+						if [ -z ${SHELLQUIZ[$ZAHL2-14]} ]
+
+						then
+
+						echo "${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2+14]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "${SHELLQUIZ[$ZAHL2-14]};${SHELLQUIZ[$ZAHL2-6]};${SHELLQUIZ[$ZAHL2-10]};${SHELLQUIZ[$ZAHL2-2]}" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+
+						if [ -z ${SHELLQUIZ[$ZAHL2-10]} ]
+
+						then
+
+						rm shellquiz_multi2.tmp
+
+						echo "${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2+14]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+				
+						if [ -z ${SHELLQUIZ[$ZAHL2-6]} ]
+
+						then
+
+						rm shellquiz_multi2.tmp
+
+						echo "${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2+14]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+
+						if [ -z ${SHELLQUIZ[$ZAHL2-2]} ]
+
+						then
+
+						rm shellquiz_multi2.tmp
+
+						echo "${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2+14]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+					
+					elif [ $ZAHL100 = 4 ]
+					
+					then
+
+						if [ -z ${SHELLQUIZ[$ZAHL2-14]} ]
+
+						then
+
+						echo "${SHELLQUIZ[$ZAHL2+14]};${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2-2]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "${SHELLQUIZ[$ZAHL2-2]};${SHELLQUIZ[$ZAHL2-6]};${SHELLQUIZ[$ZAHL2-10]};${SHELLQUIZ[$ZAHL2-14]}" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+
+						if [ -z ${SHELLQUIZ[$ZAHL2-10]} ]
+
+						then
+
+						rm shellquiz_multi2.tmp
+
+						echo "${SHELLQUIZ[$ZAHL2+14]};${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2-2]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+				
+						if [ -z ${SHELLQUIZ[$ZAHL2-6]} ]
+
+						then
+
+						rm shellquiz_multi2.tmp
+
+						echo "${SHELLQUIZ[$ZAHL2+14]};${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2-2]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+
+						if [ -z ${SHELLQUIZ[$ZAHL2-2]} ]
+
+						then
+
+						rm shellquiz_multi2.tmp
+
+						echo "${SHELLQUIZ[$ZAHL2+14]};${SHELLQUIZ[$ZAHL2+6]};${SHELLQUIZ[$ZAHL2+10]};${SHELLQUIZ[$ZAHL2-2]}" >> shellquiz_multi2.tmp
+
+						else
+					
+						echo "" >> shellquiz_multi2.tmp
+
+						fi 2> /dev/null
+
+					fi
+
+				
+					MULTI3=($( cat shellquiz_multi2.tmp | tr '\n' ';' ))
+										
+					MULTIZAHL3=0
+
+					MULTIZAEHLER2=1
+					
+					for i in 1 2 3 4; do
+					
+					echo "$MULTIZAEHLER2 -> ${MULTI3[$MULTIZAHL3]}"
+
+					MULTIZAEHLER2=$(($MULTIZAEHLER2+1))
+					
+					MULTIZAHL3=$(($MULTIZAHL3+1))
+					
+					done
+
+					
+
+cat << EOF
+********************************************************************
+EOF
+				echo -n "Eingabe: "; read ANSWER
+
+				done
+
+				ANSWER=$(($ANSWER-1))
+
+				ANSWERMULTI2=${MULTI3[$ANSWER]}
+
+				rm shellquiz_multi2.tmp
+
+				ZAHL2=$(($ZAHL2-2))
+
+					if [ $ANSWERMULTI2 = ${SHELLQUIZ[$ZAHL2]} ]
+					then
+
+					PROZENT2=$(($PROZENT2+4))
+
+					#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+					ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+					ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+					BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "##"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+					RICHTIG=$(($RICHTIG+1))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+$ERG1 % $BALKEN
+Richtig: $RICHTIG Falsch: $FALSCH
+**[INFO]*************************************************************
+${SHELLQUIZ[$ZAHL2]} 
+${SHELLQUIZ[$ZAHL2+1]}
+Richtig $SHELLQUIZBENUTZER :)
+*********************************************************************
+Zum Fortfahren Enter druecken
+
+EOF
+
+read
+
+					ZAHL2=$(($ZAHL2-1))
+
+
+					else
+
+						ZAHL2=$(($ZAHL2+1))
+
+						if [ $ANSWER = ${SHELLQUIZ[$ZAHL2]} ]
+
+						then
+
+						PROZENT2=$(($PROZENT2+4))
+
+					#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+					ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+					ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+					BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "##"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+					RICHTIG=$(($RICHTIG+1))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+$ERG1 % $BALKEN
+Richtig: $RICHTIG Falsch: $FALSCH
+**[INFO]*************************************************************
+${SHELLQUIZ[$ZAHL2]} 
+${SHELLQUIZ[$ZAHL2-1]}
+Richtig $SHELLQUIZBENUTZER :)
+*********************************************************************
+Zum Fortfahren Enter druecken
+
+EOF
+
+read
+
+						ZAHL2=$(($ZAHL2-2))
+
+
+						else
+
+						PROZENT2=$(($PROZENT2+4))
+
+					#ERG1=$( echo "scale=1 ; $PROZENT2/$PROZENT1*100" | bc )
+					ERG1=`echo $PROZENT2 $PROZENT1 | awk '{printf( "%5.0f\n", $1/$2*100)}'`
+					ERG2=`echo $ERG1 $PROZENT3 | awk '{printf( "%5.0f\n", $1/$2)}'`
+
+					BALKEN=$(
+
+					while [ $ERG2 -gt "0" ]
+
+					do
+
+						echo -n "##"
+
+						ERG2=$(($ERG2-1))
+
+					done
+
+					)
+
+					FALSCH=$(($FALSCH+1))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+$ERG1 % $BALKEN
+Richtig: $RICHTIG Falsch: $FALSCH
+--[!]----------------------------------------------------------------
+Falsch :( Antwort(en):
+${SHELLQUIZ[$ZAHL2]}
+${SHELLQUIZ[$ZAHL2-1]}
+---------------------------------------------------------------------
+Zum Fortfahren Enter druecken
+
+EOF
+
+read
+			
+						ZAHL2=$(($ZAHL2-2))
+
+
+						fi
+					fi
+        			done
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[INFO]*********************
+ Auswertung:
+
+ Richtig: $RICHTIG
+ Falsch:  $FALSCH
+*****************************
+Zum Fortfahren Enter druecken
+
+EOF
+
+read
+
+				if [ $STAT = ON ]
+
+				then
+
+				date >> $RESULT
+				echo "Datendatei: $1" >> $RESULT
+				echo " " >> $RESULT
+				echo "Richtig: $RICHTIG" >> $RESULT
+				echo "Falsch: $FALSCH" >> $RESULT
+				echo "Benutzer: $SHELLQUIZBENUTZER" >> $RESULT
+				echo " " >> $RESULT
+				
+				else
+
+				echo " "
+
+				fi
+				
+				unset RICHTIG
+				unset FALSCH
+				unset ZAHL2
+
+
+}
+
+vokabelneu ()
+
+{
+
+				SHELLQUIZ=($( cat $1 | tr '\n' ';' ))
+
+				KEINGABE2=1
+				
+				while [ $KEINGABE2 = 1 ]
+
+				do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]***************************************************************
+Bitte geben Sie die neue
+Frage ein
+********************************************************************
+Mit Enter bestaetigen
+____________________________________________________________________
+EOF
+				echo -n "Eingabe: " ; read NEINGABE1
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]***************************************************************
+Bitte geben Sie nun die
+Antwort ein
+********************************************************************
+Mit Enter bestaetigen
+____________________________________________________________________
+EOF
+				echo -n "Eingabe: " ; read NEINGABE2
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]***************************
+Sie koennen zu jeder 
+Frage + Antwort eine 
+Beschreibung eingeben.
+--------------------------------
+1 -> Beschreibung eingeben
+2 -> Beschreibung nicht eingeben
+********************************
+Mit Enter bestaetigen
+________________________________
+EOF
+				echo -n "Eingabe: " ; read SYNO1
+
+				if [ $SYNO1 = 1 ]
+
+				then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]***************************************************************
+Bitte geben Sie nun die
+Beschreibung zur Frage ein
+********************************************************************
+Mit Enter bestaetigen
+____________________________________________________________________
+EOF
+				echo -n "Eingabe: " ; read SYNO2
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]***************************************************************
+Bitte geben Sie nun die
+Beschreibung zur Antwort ein
+********************************************************************
+Mit Enter bestaetigen
+____________________________________________________________________
+EOF
+				echo -n "Eingabe: " ; read SYNO3
+
+				else
+
+				echo " "
+
+				fi
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]*****************************************************************
+Folgendes haben Sie
+eingegeben:
+
+$NEINGABE1  
+$SYNO2 
+<-> 
+$NEINGABE2
+$SYNO3
+----------------------------------------------------------------------
+Taste 1 -> Speichern
+Taste 2 -> Abbrechen
+**********************************************************************
+Mit Enter bestaetigen
+______________________________________________________________________
+EOF
+				echo -n "Eingabe: " ; read SAVE1
+
+				if [ $SAVE1 = 1 ]
+
+				then
+
+				echo "$NEINGABE1;$SYNO2;$NEINGABE2;$SYNO3" >> $1
+
+				unset NEINGABE1
+				unset NEINGABE2
+				unset SYNO2
+				unset SYNO3
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[INFO]***********************
+Neue Abfrage wurde in der
+Datendatei $1
+gespeichert :)
+*******************************
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+				else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+--[!]-------------------------
+Speichern abgebrochen
+------------------------------
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+				fi
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]***********************
+Eine weitere Frage
+hinzufuegen?
+----------------------------
+Taste 1 -> Ja
+Taste 2 -> Nein
+****************************
+Mit Enter bestaetigen
+____________________________
+EOF
+				echo -n "Eingabe: " ; read KEINGABE2
+
+				done
+
+}
+
+base ()
+
+{
+
+RICHTIG=0
+FALSCH=0
+ZAHL=4
+
+unset SHELLQUIZ
+
+SHELLQUIZ=($( cat $1 | tr '\n' ';' ))
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+ ____   _           _     _
+|   _| | |_   ___  | |   | |    0.5
+|_   | |   | | -_| | |_  | |_
+|____| |_|_| |___| |___| |___| QUIZ
+basierend auf Voc
+------------------------------------
+Taste 1 -> Quiz starten
+Taste 2 -> Suchen
+Taste 3 -> Fragen hinzufuegen
+Taste 4 -> Fragen loeschen
+Taste 5 -> Optionen
+Taste 6 -> Datendatei wechseln
+Taste 7 -> Benutzer wechseln
+Taste 0 -> Beenden
+************************************
+Mit Enter bestaetigen
+____________________________________
+EOF
+		echo -n "Eingabe: " ; read AUSWAHL
+
+			until [ $AUSWAHL -lt 8 ]
+
+			do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[!]***********************
+Ungueltige Eingabe! Zum
+Wiederholen der Eingabe
+die Enter-Taste druecken
+****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+ ____   _           _     _
+|   _| | |_   ___  | |   | |    0.5
+|_   | |   | | -_| | |_  | |_
+|____| |_|_| |___| |___| |___| QUIZ
+basierend auf Voc
+------------------------------------
+Taste 1 -> Quiz starten
+Taste 2 -> Suchen
+Taste 3 -> Fragen hinzufuegen
+Taste 4 -> Fragen loeschen
+Taste 5 -> Optionen
+Taste 6 -> Datendatei wechseln
+Taste 7 -> Benutzer wechseln
+Taste 0 -> Beenden
+************************************
+Mit Enter bestaetigen
+____________________________________
+EOF
+			echo -n "Eingabe: " ; read AUSWAHL
+
+			done
+
+			case $AUSWAHL in
+
+				1 )
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[MULTIPLE CHOICE]*************
+In welcher Richtung soll
+abgefragt werden?
+Taste 1 -> Frage - Antwort
+Taste 2 -> Antwort - Frage
+--------------------------------
+Taste 3 -> Zurueck
+********************************
+Mit Enter bestaetigen
+________________________________
+EOF
+		echo -n "Eingabe: " ; read AUSWAHLMC
+
+			until [ $AUSWAHLMC -lt 4 ]
+
+			do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[!]***********************
+Ungueltige Eingabe! Zum
+Wiederholen der Eingabe
+die Enter-Taste druecken
+****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[MULTIPLE CHOICE]*************
+In welcher Richtung soll
+abgefragt werden?
+Taste 1 -> Frage - Antwort
+Taste 2 -> Antwort - Frage
+--------------------------------
+Taste 3 -> Zurueck
+********************************
+Mit Enter bestaetigen
+________________________________
+EOF
+		echo -n "Eingabe: " ; read AUSWAHLMC
+
+			done
+
+			if [ $AUSWAHLMC = 1 ]
+
+			then
+
+				multi1 $1
+
+			elif [ $AUSWAHLMC = 2 ]
+
+			then
+
+				multi2 $1
+
+			elif [ $AUSWAHLMC = 3 ]
+
+			then
+
+				base $1
+
+			fi
+
+				base $1
+
+				;;
+
+#------------------------------------------------------
+
+				2 ) 
+
+				KEINGABE1=1
+				
+				while [ $KEINGABE1 = 1 ]
+
+				do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]********************
+Volltextsuche:
+Geben Sie das Wort ein,
+nach dem gesucht werden
+soll
+*************************
+Mit Enter bestaetigen
+_________________________
+EOF
+
+				echo -n "Suche: " ; read SEINGABE
+
+				grep $SEINGABE $1
+
+				if [ $? = 0 ]
+				then
+
+				grep $SEINGABE $1 > shellquiz_find.tmp
+				
+				FIND6=($( cat shellquiz_find.tmp | tr '\n' ';' ))
+	
+echo -en "\033[H\033[2J"
+
+cat << EOF
+--[ERGEBNIS]-----------------
+${FIND6[0]} 
+${FIND6[1]}
+<->
+${FIND6[2]}
+${FIND6[3]}
+-----------------------------
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+				rm shellquiz_find.tmp
+
+				else
+					
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[!]************************
+Das Wort/Der Satz
+wurde nicht in der
+Datendatei gefunden :(
+*****************************
+Zum Fortfahren Enter druecken
+EOF
+
+read
+				fi
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]***********************
+Eine weiteres Wort
+suchen?
+----------------------------
+Taste 1 -> Ja
+Taste 2 -> Nein
+****************************
+Mit Enter bestaetigen
+____________________________
+EOF
+				echo -n "Eingabe: " ; read KEINGABE1
+
+				done
+
+				base $1
+
+				;;
+
+#------------------------------------------------------
+
+				3 )
+
+				vokabelneu $1
+
+				base $1
+
+				;;
+
+#------------------------------------------------------
+
+				4 )
+
+				KEINGABE3=1
+				
+				while [ $KEINGABE3 = 1 ]
+
+				do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]***********************
+Bitte geben Sie ein Wort
+von einer Frage ein, 
+die geloescht werden soll
+****************************
+Mit Enter bestaetigen
+____________________________
+EOF
+				echo -n "Eingabe: " ; read LEINGABE
+
+				grep $LEINGABE $1
+
+				if [ $? = 0 ]
+
+				then
+
+echo -en "\033[H\033[2J"
+cat << EOF
+**[?]***************************
+Sollen folgende Fragen+Antworten
+geloescht werden?
+EOF
+grep $LEINGABE $1 | sed 's/;/ <-> /g'
+cat << EOF
+--------------------------------
+Taste 1 -> Loeschen
+Taste 2 -> Loeschen abbrechen
+********************************
+Mit Enter bestaetigen
+________________________________
+EOF
+				echo -n "Eingabe: " ; read LAUSWAHL1
+
+					if [ $LAUSWAHL1 = 1 ]
+
+					then
+
+					sed /$LEINGABE/d $1 > shellquiz.tmp
+
+					mv shellquiz.tmp $1
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[INFO]*********************
+Die Fragen+Antworten wurden
+aus der Datendatei $1
+entfernt :)
+*****************************
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+					else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+--[!]------------------------
+Der Loeschvorgang wurde
+abgebrochen
+-----------------------------
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+					fi
+
+				else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+--[!]-------------------------
+Das Wort/Der Satz ist nicht
+in der Datendatei 
+$1
+enthalten :(
+------------------------------
+Zum Fortfahren Enter druecken	
+EOF
+
+read
+
+				fi
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]***********************
+Weitere Fragen+Antworten
+loeschen?
+----------------------------
+Taste 1 -> Ja
+Taste 2 -> Nein
+****************************
+Mit Enter bestaetigen
+____________________________
+EOF
+				echo -n "Eingabe: " ; read KEINGABE3
+
+				done
+
+				base $1
+
+				;;
+
+#------------------------------------------------------
+
+				5 )
+
+				KEINGABE4=1
+				
+				while [ $KEINGABE4 = 1 ]
+
+				do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[OPTIONEN]********************
+Taste 1 -> Logging ON
+Taste 2 -> Logging OFF
+Taste 3 -> Results anzeigen
+Taste 4 -> CSV-Export
+Taste 5 -> Datendatei drucken
+Taste 6 -> Favoriten
+Taste 7 -> Benutzerverwaltung
+Taste 0 -> Hauptmenue
+--------------------------------
+Logging Status: $STAT
+********************************
+Mit Enter bestaetigen
+________________________________
+EOF
+				echo -n "Eingabe: " ; read OEINGABE
+
+				
+				if [ $OEINGABE = 1 ]
+
+				then
+
+				STAT="ON"
+				
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[INFO]**********************
+Logging wurde eingeschaltet :)
+******************************
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+
+				elif [ $OEINGABE = 2 ]
+
+				then
+
+				STAT="OFF"
+				
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[!]*************************
+Logging wurde ausgeschaltet :(
+******************************
+Zum Fortfahren Enter druecken
+EOF
+
+read
+	
+				
+				elif [ $OEINGABE = 3 ]
+				
+				then
+
+				echo -en "\033[H\033[2J"
+				
+				echo "Zeige die letzten 2 Eintraege..."
+				
+				tail -14 $RESULT
+				
+				echo -n "Taste ENTER -> Zurueck  "; read	
+				
+				
+				elif [ $OEINGABE = 4 ]
+
+				then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]***********************
+Welches Format soll die
+CSV-Datei verwenden?
+----------------------------
+Taste 1 -> "Wort","Wort"
+Taste 2 ->  Wort,Wort
+****************************
+Mit Enter bestaetigen
+____________________________
+EOF
+
+				echo -n "Eingabe: " ; read KOMMA1
+
+				if [ $KOMMA1 = 1 ]
+
+				then
+
+	sed 's/;/","/g' $1 | sed 's/^/"/g' | sed 's/$/"/g' > shellquiz-export1.csv
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[INFO]*********************
+Die Datendatei
+$1
+wurde in die CSV-Datei
+"shellquiz-export1.csv" 
+exportiert :)
+*****************************
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+				else
+
+	sed 's/;/,/g' $1 > shellquiz-export2.csv
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[INFO]*********************
+Die Datendatei
+$1
+wurde in die CSV-Datei
+"shellquiz-export2.csv" 
+exportiert :)
+*****************************
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+				fi
+
+
+				elif [ $OEINGABE = 5 ]
+
+				then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]***********************
+Soll die Datendatei
+$1
+gedruckt werden?
+----------------------------
+Taste 1 -> Ja
+Taste 2 -> Nein
+****************************
+Mit Enter bestaetigen
+____________________________
+EOF
+
+				echo -n "Eingabe: " ; read DRUCKEN1
+
+					if [ $DRUCKEN1 = 1 ]
+
+					then
+
+					cat $1 | sed 's/;/ -> /g' | lpr
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[INFO]*********************
+Die Datendatei
+$1
+wurde gedruckt :)
+*****************************
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+					else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+--[!]------------------------
+Das Drucken wurde abgebrochen
+-----------------------------
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+					fi
+
+
+				elif [ $OEINGABE = 6 ]
+
+				then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[FAVORITEN]***************
+Taste 1 -> Favorit anlegen
+Taste 2 -> Favorit loeschen
+Taste 3 -> Zurueck
+****************************
+Mit Enter bestaetigen
+____________________________
+EOF
+
+					echo -n "Eingabe: " ; read FAVORITM
+
+					until [ $FAVORITM -lt 4 ]
+
+					do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[!]***********************
+Ungueltige Eingabe! Zum
+Wiederholen der Eingabe
+die Enter-Taste druecken
+****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[FAVORITEN]***************
+Taste 1 -> Favorit anlegen
+Taste 2 -> Favorit loeschen
+Taste 3 -> Zurueck
+****************************
+Mit Enter bestaetigen
+____________________________
+EOF
+
+					echo -n "Eingabe: " ; read FAVORITM
+
+					done
+
+					if [ $FAVORITM = 1 ]
+
+					then				
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]***********************
+Wollen Sie die aktuelle
+Datendatei als Favorit
+speichern?
+----------------------------
+Taste 1 -> Ja
+Taste 2 -> Nein
+****************************
+Mit Enter bestaetigen
+____________________________
+EOF
+				
+						echo -n "Eingabe: " ; read FAVORITA
+
+						if [ $FAVORITA = 1 ]
+
+						then
+
+						echo $1 >> shellquiz-favoriten.dat
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[INFO]*********************
+$1
+wurde als Favorit gespeichert
+*****************************
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+						else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+--[!]------------------------
+Das Speichern wurde 
+abgebrochen
+-----------------------------
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+						fi
+
+					elif [ $FAVORITM = 2 ]
+
+					then
+
+						FAVORITB=1
+				
+						while [ $FAVORITB = 1 ]
+
+						do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]***********************
+Bitte geben Sie den Favorit
+ein, der geloescht werden
+soll
+****************************
+Mit Enter bestaetigen
+____________________________
+EOF
+						echo -n "Eingabe: " ; read FAVORITC
+
+						grep $FAVORITC shellquiz-favoriten.dat
+
+						if [ $? = 0 ]
+
+						then
+
+echo -en "\033[H\033[2J"
+cat << EOF
+**[?]***************************
+Sollen folgende Favoriten
+geloescht werden?
+EOF
+grep $FAVORITC shellquiz-favoriten.dat
+cat << EOF
+--------------------------------
+Taste 1 -> Favoriten loeschen
+Taste 2 -> Loeschen abbrechen
+********************************
+Mit Enter bestaetigen
+________________________________
+EOF
+						echo -n "Eingabe: " ; read FAVORITD
+
+							if [ $FAVORITD = 1 ]
+
+							then
+
+					sed /$FAVORITC/d shellquiz-favoriten.dat > shellquiz-favoriten.tmp
+
+					mv shellquiz-favoriten.tmp shellquiz-favoriten.dat
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[INFO]**********************
+Die Favoriten wurden aus der
+Shellquiz-Favoritendatei 
+entfernt :)
+******************************
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+							else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+--[!]------------------------
+Der Loeschvorgang wurde
+abgebrochen
+-----------------------------
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+							fi
+
+						else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+--[!]-------------------------
+Favorit(en) nicht
+in der Favoritendatei 
+enthalten :(
+------------------------------
+Zum Fortfahren Enter druecken	
+EOF
+
+read
+
+						fi
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]***********************
+Einen weiteren Favoriten
+loeschen?
+----------------------------
+Taste 1 -> Ja
+Taste 2 -> Nein
+****************************
+Mit Enter bestaetigen
+____________________________
+EOF
+						echo -n "Eingabe: " ; read FAVORITB
+
+						done
+
+					
+					elif [ $FAVORITM = 3 ]
+
+					then
+
+					echo ""					
+
+					fi
+
+				elif [ $OEINGABE = 7 ]
+
+				then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[BENUTZERVERWALTUNG]******
+Taste 1 -> Benutzer anlegen
+Taste 2 -> Benutzer loeschen
+Taste 3 -> Zurueck
+****************************
+Mit Enter bestaetigen
+____________________________
+EOF
+
+					echo -n "Eingabe: " ; read BENUTZERM
+
+					until [ $BENUTZERM -lt 4 ]
+
+					do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[!]***********************
+Ungueltige Eingabe! Zum
+Wiederholen der Eingabe
+die Enter-Taste druecken
+****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[FAVORITEN]***************
+Taste 1 -> Benutzer anlegen
+Taste 2 -> Benutzer loeschen
+Taste 3 -> Zurueck
+****************************
+Mit Enter bestaetigen
+____________________________
+EOF
+
+					echo -n "Eingabe: " ; read BENUTZERM
+
+					done
+
+					if [ $BENUTZERM = 1 ]
+
+					then				
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]***********************
+Geben Sie den Namen des
+neuen Benutzers ein
+*****************************
+Mit Enter bestaetigen
+______________________________
+EOF
+				
+						echo -n "Eingabe: " ; read BENUTZERA
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]***********************
+Wollen Sie den Benutzer
+'$BENUTZERA'
+in der Benutzerdatenbank
+speichern?
+----------------------------
+Taste 1 -> Ja
+Taste 2 -> Nein
+****************************
+Mit Enter bestaetigen
+____________________________
+EOF
+
+						echo -n "Eingabe: " ; read BENUTZERSAVE
+
+						if [ $BENUTZERSAVE = 1 ]
+
+						then
+
+						echo $BENUTZERA >> shellquiz-benutzer.dat
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[INFO]*********************
+'$BENUTZERA'
+wurde in der Benutzer-
+datenbank gespeichert
+*****************************
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+						else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+--[!]------------------------
+Das Speichern wurde 
+abgebrochen
+-----------------------------
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+						fi
+
+					elif [ $BENUTZERM = 2 ]
+
+					then
+
+						BENUTZERB=1
+				
+						while [ $BENUTZERB = 1 ]
+
+						do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]***********************
+Bitte geben Sie den Benutzer
+ein, der geloescht werden
+soll
+****************************
+Mit Enter bestaetigen
+____________________________
+EOF
+						echo -n "Eingabe: " ; read BENUTZERC
+
+						grep $BENUTZERC shellquiz-benutzer.dat
+
+						if [ $? = 0 ]
+
+						then
+
+echo -en "\033[H\033[2J"
+cat << EOF
+**[?]***************************
+Sollen folgende Benutzer
+geloescht werden?
+EOF
+grep $BENUTZERC shellquiz-benutzer.dat
+cat << EOF
+--------------------------------
+Taste 1 -> Benutzer loeschen
+Taste 2 -> Loeschen abbrechen
+********************************
+Mit Enter bestaetigen
+________________________________
+EOF
+						echo -n "Eingabe: " ; read BENUTZERD
+
+							if [ $BENUTZERD = 1 ]
+
+							then
+
+					sed /$BENUTZERC/d shellquiz-benutzer.dat > shellquiz-benutzer.tmp
+
+					mv shellquiz-benutzer.tmp shellquiz-benutzer.dat
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[INFO]**********************
+Die Benutzer wurden aus der
+Benutzerdatenbank entfernt :)
+******************************
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+							else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+--[!]------------------------
+Der Loeschvorgang wurde
+abgebrochen
+-----------------------------
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+							fi
+
+						else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+--[!]-------------------------
+Die/Der Benutzer sind/ist
+nicht in der Benutzerdaten-
+bank enthalten :(
+------------------------------
+Zum Fortfahren Enter druecken	
+EOF
+
+read
+
+						fi
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]***********************
+Einen weiteren Benutzer
+loeschen?
+----------------------------
+Taste 1 -> Ja
+Taste 2 -> Nein
+****************************
+Mit Enter bestaetigen
+____________________________
+EOF
+						echo -n "Eingabe: " ; read BENUTZERB
+
+						done
+
+					
+					elif [ $BENUTZERM = 3 ]
+
+					then
+
+					echo ""					
+
+					fi
+
+
+				elif [ $OEINGABE = 0 ]
+				
+				then
+				
+				KEINGABE4=0
+				
+				fi
+
+				done
+
+				base $1
+
+				;;
+
+#------------------------------------------------------
+
+				6 )
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+***[DATENDATEI WECHSELN]***
+ 1 -> Datendatei oeffnen
+ 2 -> Favorit oeffnen
+ 3 -> Hauptmenue
+*****************************
+ Mit Enter bestaetigen
+_____________________________
+EOF
+
+			echo -n "Eingabe: ";read SHELLQUIZWECHSELA
+
+			until [ $SHELLQUIZWECHSELA -lt 4 ]
+
+			do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[!]***********************
+Ungueltige Eingabe! Zum
+Wiederholen der Eingabe
+die Enter-Taste druecken
+****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+***[DATENDATEI WECHSELN]***
+ 1 -> Datendatei oeffnen
+ 2 -> Favorit oeffnen
+ 3 -> Hauptmenue
+*****************************
+ Mit Enter bestaetigen
+_____________________________
+EOF
+
+			echo -n "Eingabe: ";read SHELLQUIZWECHSELA
+
+			done
+
+			
+			if [ $SHELLQUIZWECHSELA = 1 ]
+
+			then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]************************
+Geben Sie die Datendatei
+inklusive Pfad ein, die Sie
+oeffnen wollen
+*****************************
+Mit Enter bestaetigen
+______________________________
+EOF
+
+				echo -n "Eingabe: " ; read OEFFNENB
+
+				SHELLQUIZ=($( cat $OEFFNENB | tr '\n' ';' ))
+
+				base $OEFFNENB			
+
+			elif [ $SHELLQUIZWECHSELA = 2 ]
+
+			then
+
+				FAVORITE=($( cat shellquiz-favoriten.dat | tr '\n' ';' ))
+	
+				FAVORITZAHL=0
+				FAVORITTASTE=1
+
+				if [ ${#FAVORITE[*]} -gt "0" ]
+
+then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[INFO]*********************
+Waehlen Sie einen Favoriten
+aus:
+
+EOF
+
+		while [ $FAVORITZAHL -lt ${#FAVORITE[*]} ]
+
+        	do
+
+				echo "Taste $FAVORITTASTE -> ${FAVORITE[$FAVORITZAHL]}"
+
+				FAVORITZAHL=$(($FAVORITZAHL+1))
+
+				FAVORITTASTE=$(($FAVORITTASTE+1))
+
+		done
+
+cat << EOF
+*****************************
+Mit Enter bestaetigen
+_____________________________
+EOF
+
+				echo -n "Eingabe: " ; read FAVORITF
+		
+				until [ $FAVORITF -lt $FAVORITTASTE ]
+
+				do
+
+				FAVORITE=($( cat shellquiz-favoriten.dat | tr '\n' ';' ))
+	
+				FAVORITZAHL=0
+				FAVORITTASTE=1
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[!]***********************
+Ungueltige Eingabe! Zum
+Wiederholen der Eingabe
+die Enter-Taste druecken
+****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[INFO]*********************
+Waehlen Sie einen Favoriten
+aus:
+
+EOF
+		
+		while [ $FAVORITZAHL -lt ${#FAVORITE[*]} ]
+
+        	do
+
+				echo "Taste $FAVORITTASTE -> ${FAVORITE[$FAVORITZAHL]}"
+
+				FAVORITZAHL=$(($FAVORITZAHL+1))
+
+				FAVORITTASTE=$(($FAVORITTASTE+1))
+
+		done
+
+cat << EOF
+*****************************
+Mit Enter bestaetigen
+_____________________________
+EOF
+
+				echo -n "Eingabe: " ; read FAVORITF
+
+				done
+
+				FAVORITF=$(($FAVORITF-1))
+
+				FAVORITG=${FAVORITE[$FAVORITF]}
+
+				SHELLQUIZ=($( cat $FAVORITG | tr '\n' ';' ))
+				
+				base $FAVORITG
+
+else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[!]************************
+Es sind keine Favoriten in
+der Favoritendatei vor-
+handen :(
+*****************************
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+base $1
+
+fi
+
+			elif [ $SHELLQUIZWECHSELA = 3 ]
+
+			then
+
+			base $1
+
+			fi
+
+
+				;;
+
+#------------------------------------------------------
+
+				7 )
+
+		BENUTZERE=($( cat shellquiz-benutzer.dat | tr '\n' ';' ))
+	
+		BENUTZERZAHL=0
+		BENUTZERTASTE=1
+
+		if [ ${#BENUTZERE[*]} -lt 1 ]
+
+		then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[!]************************
+Es sind keine Benutzer in
+der Benutzerdatenbank vor-
+handen :(
+*****************************
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+		base $1
+
+		else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[INFO]*********************
+Waehlen Sie einen Benutzer
+aus:
+
+EOF
+
+		while [ $BENUTZERZAHL -lt ${#BENUTZERE[*]} ]
+
+        	do
+
+				echo "Taste $BENUTZERTASTE -> ${BENUTZERE[$BENUTZERZAHL]}"
+
+				BENUTZERZAHL=$(($BENUTZERZAHL+1))
+
+				BENUTZERTASTE=$(($BENUTZERTASTE+1))
+
+		done
+
+cat << EOF
+*****************************
+Mit Enter bestaetigen
+_____________________________
+EOF
+
+				echo -n "Eingabe: " ; read BENUTZERF
+		
+				until [ $BENUTZERF -lt $BENUTZERTASTE ]
+
+				do
+
+				BENUTZERE=($( cat shellquiz-benutzer.dat | tr '\n' ';' ))
+	
+				BENUTZERZAHL=0
+				BENUTZERTASTE=1
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[!]***********************
+Ungueltige Eingabe! Zum
+Wiederholen der Eingabe
+die Enter-Taste druecken
+****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[INFO]*********************
+Waehlen Sie einen Benutzer
+aus:
+
+EOF
+
+		while [ $BENUTZERZAHL -lt ${#BENUTZERE[*]} ]
+
+        	do
+
+				echo "Taste $BENUTZERTASTE -> ${BENUTZERE[$BENUTZERZAHL]}"
+
+				BENUTZERZAHL=$(($BENUTZERZAHL+1))
+
+				BENUTZERTASTE=$(($BENUTZERTASTE+1))
+
+		done
+
+cat << EOF
+*****************************
+Mit Enter bestaetigen
+_____________________________
+EOF
+
+				echo -n "Eingabe: " ; read BENUTZERF
+
+				done
+
+				BENUTZERF=$(($BENUTZERF-1))
+
+				SHELLQUIZBENUTZER=${BENUTZERE[$BENUTZERF]}
+
+				
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[INFO]*********************
+Sie sind jetzt als Benutzer
+
+$SHELLQUIZBENUTZER
+
+angemeldet ;)
+*****************************
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+			base $1 $SHELLQUIZBENUTZER
+
+		fi
+
+				;;
+
+#------------------------------------------------------
+
+				0 )
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[INFO]****************************
+Shellquiz im Internet:
+
+http://www.supertuxkart.de/voc.html
+http://voc.homeunix.net
+http://voc.schulen-saar.de
+************************************
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+exit
+
+				;;
+
+#------------------------------------------------------
+	
+			esac
+
+			}
+
+STAT="OFF"
+RESULT="Results.log"
+RICHTIG=0
+FALSCH=0
+ZAHL=2
+IFS=";"
+
+if [ $# -lt 1 ]
+then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+ ____   _           _     _
+|   _| | |_   ___  | |   | |    0.5
+|_   | |   | | -_| | |_  | |_
+|____| |_|_| |___| |___| |___| QUIZ
+basierend auf Voc
+Der Multiple Choice-Trainer
+-----------------------------------
+ 1 -> Datendatei anlegen
+ 2 -> Datendatei oeffnen
+ 3 -> Favorit oeffnen
+ 4 -> Benutzer waehlen
+ 5 -> Shellquiz beenden
+***********************************
+ Mit Enter bestaetigen
+___________________________________
+EOF
+
+echo -n "Eingabe: ";read ANLEGEN
+
+until [ $ANLEGEN -lt 6 ]
+
+	do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[!]***********************
+Ungueltige Eingabe! Zum
+Wiederholen der Eingabe
+die Enter-Taste druecken
+****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+ ____   _           _     _
+|   _| | |_   ___  | |   | |    0.5
+|_   | |   | | -_| | |_  | |_
+|____| |_|_| |___| |___| |___| QUIZ
+basierend auf Voc
+Der Multiple Choice-Trainer
+-----------------------------------
+ 1 -> Datendatei anlegen
+ 2 -> Datendatei oeffnen
+ 3 -> Favorit oeffnen
+ 4 -> Benutzer waehlen
+ 5 -> Shellquiz beenden
+***********************************
+ Mit Enter bestaetigen
+___________________________________
+EOF
+
+echo -n "Eingabe: ";read ANLEGEN
+
+	done
+
+	if [ $ANLEGEN = 1 ]
+
+	then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]*******************
+Geben Sie den Namen der
+neuen Datendatei
+inklusive Pfad ein
+************************
+Mit Enter bestaetigen
+________________________
+EOF
+
+	echo -n "Eingabe: ";read NEUEDATEI
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]*********************
+Geben Sie die 1. Ueber-
+schrift ein (z.B. Frage)
+**************************
+Mit Enter bestaetigen
+__________________________
+EOF
+
+	echo -n "Eingabe: ";read SPR1
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]*********************
+Geben Sie die 2. Ueber-
+schrift ein (z.B. Antwort)
+**************************
+Mit Enter bestaetigen
+__________________________
+EOF
+
+	echo -n "Eingabe: ";read SPR2
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[Zusammenfassung]***********
+Dateiname: $NEUEDATEI
+1.Ueberschrift: $SPR1
+2.Ueberschrift: $SPR2
+******************************
+Neue Datei anlegen?
+------------------------------
+Taste 1 -> Ja
+Taste 2 -> Nein
+******************************
+Mit Enter bestaetigen
+______________________________
+EOF
+	
+	echo -n "Eingabe: ";read BEST
+
+		if [ $BEST = 1 ]
+
+		then
+
+		touch $NEUEDATEI
+		echo "$SPR1;"$SPR1"2;$SPR2;"$SPR2"2" > $NEUEDATEI
+
+echo -en "\033[H\033[2J"
+		
+cat << EOF
+**[INFO]**********************
+Neue Datei $NEUEDATEI
+wurde angelegt :)
+******************************
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+vokabelneu $NEUEDATEI
+
+base $NEUEDATEI
+
+		else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+--[!]------------------------
+Datendatei wurde
+nicht erstellt :(
+-----------------------------
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+		fi
+
+	elif [ $ANLEGEN = 2 ]
+
+	then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]************************
+Geben Sie die Datendatei
+inklusive Pfad ein, die Sie
+oeffnen wollen
+*****************************
+Mit Enter bestaetigen
+______________________________
+EOF
+
+	echo -n "Eingabe: " ; read OEFFNENA
+
+SHELLQUIZ=($( cat $OEFFNENA | tr '\n' ';' ))
+
+base $OEFFNENA
+
+	elif [ $ANLEGEN = 3 ]
+
+	then
+
+	FAVORITE=($( cat shellquiz-favoriten.dat | tr '\n' ';' ))
+	
+	FAVORITZAHL=0
+	FAVORITTASTE=1
+
+if [ ${#FAVORITE[*]} -gt "0" ]
+
+then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[INFO]*********************
+Waehlen Sie einen Favoriten
+aus:
+
+EOF
+
+		while [ $FAVORITZAHL -lt ${#FAVORITE[*]} ]
+
+        	do
+
+				echo "Taste $FAVORITTASTE -> ${FAVORITE[$FAVORITZAHL]}"
+
+				FAVORITZAHL=$(($FAVORITZAHL+1))
+
+				FAVORITTASTE=$(($FAVORITTASTE+1))
+
+		done
+
+cat << EOF
+*****************************
+Mit Enter bestaetigen
+_____________________________
+EOF
+
+				echo -n "Eingabe: " ; read FAVORITF
+		
+				until [ $FAVORITF -lt $FAVORITTASTE ]
+
+				do
+
+				FAVORITE=($( cat shellquiz-favoriten.dat | tr '\n' ';' ))
+	
+				FAVORITZAHL=0
+				FAVORITTASTE=1
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[!]***********************
+Ungueltige Eingabe! Zum
+Wiederholen der Eingabe
+die Enter-Taste druecken
+****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[INFO]*********************
+Waehlen Sie einen Favoriten
+aus:
+
+EOF
+
+		while [ $FAVORITZAHL -lt ${#FAVORITE[*]} ]
+
+        	do
+
+				echo "Taste $FAVORITTASTE -> ${FAVORITE[$FAVORITZAHL]}"
+
+				FAVORITZAHL=$(($FAVORITZAHL+1))
+
+				FAVORITTASTE=$(($FAVORITTASTE+1))
+
+		done
+
+cat << EOF
+*****************************
+Mit Enter bestaetigen
+_____________________________
+EOF
+
+				echo -n "Eingabe: " ; read FAVORITF
+
+				done
+
+				FAVORITF=$(($FAVORITF-1))
+
+				FAVORITG=${FAVORITE[$FAVORITF]}
+
+				SHELLQUIZ=($( cat $FAVORITG | tr '\n' ';' ))
+
+				base $FAVORITG
+
+else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[!]************************
+Es sind keine Favoriten in
+der Favoritendatei vor-
+handen :(
+*****************************
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+exit
+
+fi
+
+	elif [ $ANLEGEN = 4 ]
+
+	then
+
+		BENUTZERE=($( cat shellquiz-benutzer.dat | tr '\n' ';' ))
+	
+		BENUTZERZAHL=0
+		BENUTZERTASTE=1
+
+if [ ${#BENUTZERE[*]} -gt "0" ]
+
+then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[INFO]*********************
+Waehlen Sie einen Benutzer
+aus:
+
+EOF
+
+		while [ $BENUTZERZAHL -lt ${#BENUTZERE[*]} ]
+
+        	do
+
+				echo "Taste $BENUTZERTASTE -> ${BENUTZERE[$BENUTZERZAHL]}"
+
+				BENUTZERZAHL=$(($BENUTZERZAHL+1))
+
+				BENUTZERTASTE=$(($BENUTZERTASTE+1))
+
+		done
+
+cat << EOF
+*****************************
+Mit Enter bestaetigen
+_____________________________
+EOF
+
+				echo -n "Eingabe: " ; read BENUTZERF
+		
+				until [ $BENUTZERF -lt $BENUTZERTASTE ]
+
+				do
+
+				BENUTZERE=($( cat shellquiz-benutzer.dat | tr '\n' ';' ))
+	
+				BENUTZERZAHL=0
+				BENUTZERTASTE=1
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[!]***********************
+Ungueltige Eingabe! Zum
+Wiederholen der Eingabe
+die Enter-Taste druecken
+****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[INFO]*********************
+Waehlen Sie einen Benutzer
+aus:
+
+EOF
+
+		while [ $BENUTZERZAHL -lt ${#BENUTZERE[*]} ]
+
+        	do
+
+				echo "Taste $BENUTZERTASTE -> ${BENUTZERE[$BENUTZERZAHL]}"
+
+				BENUTZERZAHL=$(($BENUTZERZAHL+1))
+
+				BENUTZERTASTE=$(($BENUTZERTASTE+1))
+
+		done
+
+cat << EOF
+*****************************
+Mit Enter bestaetigen
+_____________________________
+EOF
+
+				echo -n "Eingabe: " ; read BENUTZERF
+
+				done
+
+				BENUTZERF=$(($BENUTZERF-1))
+
+				SHELLQUIZBENUTZER=${BENUTZERE[$BENUTZERF]}
+
+				
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[INFO]*********************
+Sie sind jetzt als Benutzer
+
+$SHELLQUIZBENUTZER
+
+angemeldet ;)
+*****************************
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+*[DATENDATEI AUSWAEHLEN]*
+ 1 -> Datendatei anlegen
+ 2 -> Datendatei oeffnen
+ 3 -> Favorit oeffnen
+***************************
+ Mit Enter bestaetigen
+___________________________
+EOF
+
+echo -n "Eingabe: ";read ANLEGEN2
+
+until [ $ANLEGEN2 -lt 4 ]
+
+	do
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[!]***********************
+Ungueltige Eingabe! Zum
+Wiederholen der Eingabe
+die Enter-Taste druecken
+****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+*[DATENDATEI AUSWAEHLEN]*
+ 1 -> Datendatei anlegen
+ 2 -> Datendatei oeffnen
+ 3 -> Favorit oeffnen
+***************************
+ Mit Enter bestaetigen
+___________________________
+EOF
+
+echo -n "Eingabe: ";read ANLEGEN2
+
+	done
+
+	if [ $ANLEGEN2 = 1 ]
+
+	then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]*******************
+Geben Sie den Namen der
+neuen Datendatei
+inklusive Pfad ein
+************************
+Mit Enter bestaetigen
+________________________
+EOF
+
+	echo -n "Eingabe: ";read NEUEDATEI
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]*********************
+Geben Sie die 1.Ueber-
+schrift ein (z.B. Frage)
+**************************
+Mit Enter bestaetigen
+__________________________
+EOF
+
+	echo -n "Eingabe: ";read SPR1
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]*********************
+Geben Sie die 2.Ueber-
+schrift ein (z.B. Antwort)
+**************************
+Mit Enter bestaetigen
+__________________________
+EOF
+
+	echo -n "Eingabe: ";read SPR2
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[Zusammenfassung]***********
+Dateiname: $NEUEDATEI
+1.Ueberschrift: $SPR1
+2.Ueberschrift: $SPR2
+******************************
+Neue Datei anlegen?
+------------------------------
+Taste 1 -> Ja
+Taste 2 -> Nein
+******************************
+Mit Enter bestaetigen
+______________________________
+EOF
+	
+	echo -n "Eingabe: ";read BEST
+
+		if [ $BEST = 1 ]
+
+		then
+
+		touch $NEUEDATEI
+		echo "$SPR1;"$SPR1"2;$SPR2;"$SPR2"2" > $NEUEDATEI
+
+echo -en "\033[H\033[2J"
+		
+cat << EOF
+**[INFO]**********************
+Neue Datei $NEUEDATEI
+wurde angelegt :)
+******************************
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+vokabelneu $NEUEDATEI
+
+base $NEUEDATEI $SHELLQUIZBENUTZER
+
+		else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+--[!]------------------------
+Datendatei wurde
+nicht erstellt :(
+-----------------------------
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+exit
+
+		fi
+
+	elif [ $ANLEGEN2 = 2 ]
+
+	then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[?]************************
+Geben Sie die Datendatei
+inklusive Pfad ein, die Sie
+oeffnen wollen
+*****************************
+Mit Enter bestaetigen
+______________________________
+EOF
+
+	echo -n "Eingabe: " ; read OEFFNENA
+
+SHELLQUIZ=($( cat $OEFFNENA | tr '\n' ';' ))
+
+base $OEFFNENA $SHELLQUIZBENUTZER
+
+	elif [ $ANLEGEN2 = 3 ]
+
+	then
+
+	FAVORITE=($( cat shellquiz-favoriten.dat | tr '\n' ';' ))
+	
+	FAVORITZAHL=0
+	FAVORITTASTE=1
+
+if [ ${#FAVORITE[*]} -gt "0" ]
+
+then
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[INFO]*********************
+Waehlen Sie einen Favoriten
+aus:
+
+EOF
+
+		while [ $FAVORITZAHL -lt ${#FAVORITE[*]} ]
+
+        	do
+
+				echo "Taste $FAVORITTASTE -> ${FAVORITE[$FAVORITZAHL]}"
+
+				FAVORITZAHL=$(($FAVORITZAHL+1))
+
+				FAVORITTASTE=$(($FAVORITTASTE+1))
+
+		done
+
+cat << EOF
+*****************************
+Mit Enter bestaetigen
+_____________________________
+EOF
+
+				echo -n "Eingabe: " ; read FAVORITF
+		
+				until [ $FAVORITF -lt $FAVORITTASTE ]
+
+				do
+
+				FAVORITE=($( cat shellquiz-favoriten.dat | tr '\n' ';' ))
+	
+				FAVORITZAHL=0
+				FAVORITTASTE=1
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[!]***********************
+Ungueltige Eingabe! Zum
+Wiederholen der Eingabe
+die Enter-Taste druecken
+****************************
+EOF
+
+read
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[INFO]*********************
+Waehlen Sie einen Favoriten
+aus:
+
+EOF
+
+		while [ $FAVORITZAHL -lt ${#FAVORITE[*]} ]
+
+        	do
+
+				echo "Taste $FAVORITTASTE -> ${FAVORITE[$FAVORITZAHL]}"
+
+				FAVORITZAHL=$(($FAVORITZAHL+1))
+
+				FAVORITTASTE=$(($FAVORITTASTE+1))
+
+		done
+
+cat << EOF
+*****************************
+Mit Enter bestaetigen
+_____________________________
+EOF
+
+				echo -n "Eingabe: " ; read FAVORITF
+
+				done
+
+				FAVORITF=$(($FAVORITF-1))
+
+				FAVORITG=${FAVORITE[$FAVORITF]}
+
+				SHELLQUIZ=($( cat $FAVORITG | tr '\n' ';' ))
+
+				base $FAVORITG $SHELLQUIZBENUTZER
+
+else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[!]************************
+Es sind keine Favoriten in
+der Favoritendatei vor-
+handen :(
+*****************************
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+exit
+
+fi
+
+fi
+
+else
+
+echo -en "\033[H\033[2J"
+
+cat << EOF
+**[!]************************
+Es sind keine Benutzer in
+der Benutzerdatenbank vor-
+handen :(
+*****************************
+Zum Fortfahren Enter druecken
+EOF
+
+read
+
+exit
+
+fi
+
+base $1
+
+	elif [ $ANLEGEN = 5 ]
+
+	then
+
+	echo -en "\033[H\033[2J"
+
+	exit
+
+	fi
+
+else
+
+	if [ $1 = "--help" ]
+	then
+
+cat << EOF
+Aufruf:
+shellquiz [OPTION]... [DATEI]...
+Abfragen von Wissen mit Hilfe
+einer Mehrfachauswahl.
+--help  diese Hilfe anzeigen
+  und beenden
+--version  Versionsinfo
+  anzeigen und beenden
+EOF
+
+	else
+
+    		if [ $1 = "--version" ]
+    		then
+
+cat << EOF
+shellquiz 0.5
+Der Multiple Choice-Trainer
+Dieses Programm ist freie
+Software. Sie duerfen Kopien
+davon weitergeben gemaess
+der GNU General Public
+License <http://www.gnu.org/
+licenses/gpl.html>
+Es gibt KEINERLEI GARANTIE,
+so weit das Gesetz es
+erlaubt.
+Geschrieben von hoffi, 
+26thmeusoc und Xeno74
+EOF
+    		else
+
+        	SHELLQUIZ=($( cat $1 | tr '\n' ';' ))
+
+echo -en "\033[H\033[2J"
+
+		base $1
+
+		fi
+	fi
+fi
